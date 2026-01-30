@@ -11,7 +11,7 @@ npx skills add fastapi-practices/skills
 
 ## Available Skills
 
-### fba
+### fastapi-best-architecture
 
 Development guide for FastAPI Best Architecture (fba) project. Provides complete architecture specifications, coding
 style, and plugin development guidance.
@@ -36,9 +36,9 @@ style, and plugin development guidance.
 - `references/coding-style.md` - Coding style, documentation, and comment standards
 - `references/config.md` - Global configuration reference
 
-## Supported Agents
+### fba
 
-- [Claude Code](https://github.com/anthropics/claude-code)
+Another name for fastapi-best-architecture skills.
 
 ## Related Projects
 

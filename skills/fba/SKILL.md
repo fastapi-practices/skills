@@ -427,8 +427,8 @@ async def delete_item(
 fba run
 
 # 数据库迁移
-alembic revision --autogenerate -m "描述"
-alembic upgrade head
+fba alembic revision --autogenerate -m "描述"
+fba alembic upgrade head
 
 # 代码质量
 prek run --all-files

@@ -73,17 +73,15 @@ username: Mapped[str] = mapped_column(sa.String(64), unique=True, index=True, co
 
 ## 数据库迁移
 
-仅在 backend 目录下可用
-
 ```bash
 # 生成迁移脚本
-alembic revision --autogenerate -m "描述信息"
+fba alembic revision --autogenerate -m "描述信息"
 
 # 执行迁移
-alembic upgrade head
+fba alembic upgrade head
 
 # 回滚
-alembic downgrade -1
+fba alembic downgrade -1
 ```
 
 ## 完整示例

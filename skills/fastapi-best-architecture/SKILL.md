@@ -1,7 +1,7 @@
 ---
 name: fba
 description: |
-  FastAPI Best Architecture (fba) 项目开发指南。提供完整的架构规范、编码风格、插件开发指导。
+  FastAPI Best Architecture (fba) 项目开发指南。提供完整的架构规范、编码风格、插件开发指导
 
   使用场景：
   - 在 fba 项目中开发新功能或模块
@@ -12,9 +12,9 @@ description: |
   - 代码审查和风格检查
 ---
 
-# FastAPI Best Architecture 开发技能
+# FastAPI Best Architecture Skills
 
-**官方文档**: https://fastapi-practices.github.io/fastapi_best_architecture_docs/
+官方文档: https://fastapi-practices.github.io/fastapi_best_architecture_docs/
 
 ## 项目结构
 

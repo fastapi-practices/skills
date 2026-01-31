@@ -37,7 +37,10 @@ from backend.common.response.response_schema import ResponseModel
 - 每个 import 语句只导入一个模块
 - 避免使用 `from xxx import *`
 - 使用绝对导入，避免相对导入
-- **不需要** shebang (`#!/usr/bin/env python3`) 和编码声明 (`# -*- coding: utf-8 -*-`)
+- 不需要 shebang (`#!/usr/bin/env python3`) 和编码声明 (`# -*- coding: utf-8 -*-`)
+- 不需要文件说明
+- 不需要 `__all__`
+- 除非强调，否则不要在 `__init__.py` 中添加任何内容
 
 ---
 
@@ -142,9 +145,9 @@ await user_service.get(db, pk)  # ✗ 错误，会报 TypeError
 
 ## 文档和注释
 
-### 中文注释
+### 注释
 
-项目使用中文注释：
+项目使用中文注释
 
 ```python
 # 获取用户信息
@@ -158,13 +161,16 @@ if not user.status:
 ### Docstring 格式
 
 - 使用 reStructuredText 风格
-- 类：单行 """Xxx 服务类"""
-- 方法：无参数单行；有参数多行格式，描述后空一行，:param 参数说明，:return: 后不添加内容
-- 不使用 :raise:、:rtype: 等其他标签
+- 不要使用 `:raise:` `:rtype:` 等其他标签
 
 ```python
 class UserService:
-    """用户服务类"""
+    """用户服务类"""  # 类
+
+    @staticmethod
+    async def get() -> User:
+        """获取用户详情"""  # 无参数函数
+        pass
 
     @staticmethod
     async def get(*, db: AsyncSession, pk: int) -> User:
@@ -174,7 +180,7 @@ class UserService:
         :param db: 数据库会话
         :param pk: 用户 ID
         :return:
-        """
+        """  # 有参数函数
         pass
 ```
 

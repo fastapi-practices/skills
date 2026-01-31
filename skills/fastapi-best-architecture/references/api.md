@@ -16,7 +16,7 @@
 
 ## 路由组织结构
 
-fba 中的路由遵循 RESTful API 规范。
+fba 中的路由遵循 RESTful API 规范
 
 ### 包含子包的应用
 
@@ -271,8 +271,8 @@ msg = t('error.captcha.expired')
 
 ### 语言包位置
 
-`backend/locale` 目录，支持 json 和 yaml/yml 格式。
+`backend/locale` 目录，支持 json 和 yaml/yml 格式
 
 ### 动态切换
 
-自动获取请求头中的 `Accept-Language` 参数。
+自动获取请求头中的 `Accept-Language` 参数

@@ -1,65 +1,31 @@
-# 编码风格规范
+# Coding Style Reference
 
-## 目录
+## Import Rules
 
-- [Import 组织](#import-组织)
-- [类型注解](#类型注解)
-- [异步处理](#异步处理)
-- [关键字参数](#关键字参数)
-- [文档和注释](#文档和注释)
-- [代码格式化](#代码格式化)
+- Each import statement should only import one module
+- Avoid using `from xxx import *`
+- Use absolute imports, avoid relative imports
+- No shebang (`#!/usr/bin/env python3`) or encoding declaration (`# -*- coding: utf-8 -*-`) needed
+- No file description needed
+- No `__all__` needed
+- Do not add anything in `__init__.py` unless explicitly required
 
-**相关文档**：[API 规范](api.md) | [Schema 定义](schema.md) | [命名规范](naming.md)
+## Typing
 
----
+### Typing Are Required
 
-## Import 组织
-
-按以下顺序组织，每组之间空一行：
-
-```python
-# 1. 标准库
-from datetime import datetime
-from typing import Annotated, Any
-
-# 2. 第三方库
-from fastapi import APIRouter, Depends, Path
-from sqlalchemy.ext.asyncio import AsyncSession
-
-# 3. 本地模块
-from backend.app.admin.schema.user import CreateUserParam
-from backend.common.exception import errors
-from backend.common.response.response_schema import ResponseModel
-```
-
-### Import 规范
-
-- 每个 import 语句只导入一个模块
-- 避免使用 `from xxx import *`
-- 使用绝对导入，避免相对导入
-- 不需要 shebang (`#!/usr/bin/env python3`) 和编码声明 (`# -*- coding: utf-8 -*-`)
-- 不需要文件说明
-- 不需要 `__all__`
-- 除非强调，否则不要在 `__init__.py` 中添加任何内容
-
----
-
-## 类型注解
-
-### 必须添加类型注解
-
-所有函数参数和返回值都应有类型注解：
+All function parameters and return values should have typing:
 
 ```python
 async def get_user(db: AsyncSession, pk: int) -> User:
-    pass
+    ...
 
 
 async def create_user(db: AsyncSession, obj: CreateUserParam) -> None:
-    pass
+    ...
 ```
 
-### 使用 Annotated 增强类型
+### Use Annotated for Enhanced Types
 
 ```python
 from typing import Annotated
@@ -67,40 +33,35 @@ from fastapi import Depends, Path, Query
 
 
 async def get_user(
-    db: Annotated[AsyncSession, Depends(get_db)],
+    db: CurrentSession,
     pk: Annotated[int, Path(description='用户 ID')],
     username: Annotated[str | None, Query(description='用户名')] = None,
 ) -> ResponseSchemaModel[GetUserDetail]:
-    pass
+    ...
 ```
 
-### Union 类型使用 | 操作符
+### Use `|` for Union Types
 
 ```python
-# 推荐 ✓ (Python 3.10+)
 result: str | int | None = None
-
-# 不推荐 ✗
-from typing import Union
-
-result: Union[str, int, None] = None
 ```
 
----
+## Async Handling
 
-## 异步处理
+### Use async/await for All I/O Operations
 
-### 所有 I/O 操作使用 async/await
+**API**
 
 ```python
-# API 层
-@router.get('/users/{pk}')
+@router.get('/{pk}')
 async def get_user(db: CurrentSession, pk: int) -> ResponseSchemaModel[GetUserDetail]:
-    user = await user_service.get(db=db, pk=pk)
-    return response_base.success(data=user)
+    data = await user_service.get(db=db, pk=pk)
+    return response_base.success(data=data)
+```
 
+**Service**
 
-# Service 层
+```python
 class UserService:
     @staticmethod
     async def get(*, db: AsyncSession, pk: int) -> User:
@@ -108,69 +69,59 @@ class UserService:
         if not user:
             raise errors.NotFoundError(msg='用户不存在')
         return user
+```
 
+**CRUD**
 
-# CRUD 层
+```python
 class CRUDUser(CRUDPlus[User]):
     async def get(self, db: AsyncSession, pk: int) -> User | None:
         return await self.select_model(db, pk)
 ```
 
----
+## Keyword Arguments
 
-## 关键字参数
+### Service Layer Must Use Keyword Arguments
 
-### Service 层强制使用关键字参数
-
-使用 `*` 强制调用者使用关键字参数：
+Use `*` to force callers to use keyword arguments:
 
 ```python
 class UserService:
     @staticmethod
     async def get(*, db: AsyncSession, pk: int) -> User:
-        """* 之后的参数必须使用关键字传递"""
-        pass
+        ...
 
     @staticmethod
     async def create(*, db: AsyncSession, obj: CreateUserParam) -> None:
-        pass
-
-
-# 调用时
-await user_service.get(db=db, pk=pk)  # ✓ 正确
-await user_service.get(db, pk)  # ✗ 错误，会报 TypeError
+        ...
 ```
 
----
+## Documentation and Comments
 
-## 文档和注释
+### Comments
 
-### 注释
-
-项目使用中文注释
+The project uses Chinese comments
 
 ```python
-# 获取用户信息
-user = await user_dao.get(db, pk)
-
-# 用户状态为0表示已停用，需要阻止登录
 if not user.status:
     raise errors.AuthorizationError(msg='用户已被锁定')
 ```
 
-### Docstring 格式
+### Docstring Format
 
-- 使用 reStructuredText 风格
-- 不要使用 `:raise:` `:rtype:` 等其他标签
+- Use reStructuredText style
+- Do not use `:raise:` `:rtype:` or other tags
+
+The following examples include class, function without parameters, and function with parameters
 
 ```python
 class UserService:
-    """用户服务类"""  # 类
+    """用户服务类"""
 
     @staticmethod
     async def get() -> User:
-        """获取用户详情"""  # 无参数函数
-        pass
+        """获取用户详情"""
+        ...
 
     @staticmethod
     async def get(*, db: AsyncSession, pk: int) -> User:
@@ -180,45 +131,38 @@ class UserService:
         :param db: 数据库会话
         :param pk: 用户 ID
         :return:
-        """  # 有参数函数
-        pass
+        """
+        ...
 ```
 
-### API 路由文档
+### API Route Documentation
+
+- `summary` is required
+- `description` is optional
 
 ```python
 @router.get(
     '/{pk}',
-    summary='获取用户详情',  # 必须添加
-    description='通过 ID 获取用户详细信息，包括角色和部门',  # 可选添加
+    summary='获取用户详情',
+    description='通过 ID 获取用户详细信息，包括角色和部门',
     dependencies=[DependsJwtAuth],
 )
 async def get_user(
     db: CurrentSession,
     pk: Annotated[int, Path(description='用户 ID')],
 ) -> ResponseSchemaModel[GetUserDetail]:
-    pass
+    ...
 ```
 
----
+## Code Formatting
 
-## 代码格式化
+### Ruff Configuration
 
-### Ruff 配置
+The project uses Ruff for code formatting and linting, Ruff configuration is located in pyproject.toml
 
-项目使用 Ruff 进行代码格式化和检查，配置文件为 `.ruff.toml`
-
-### Pre-commit 钩子
+### Pre-commit
 
 ```bash
-prek run --all-files
+fba format
 ```
 
-### 代码风格要点
-
-- 行长度限制：120 字符
-- 使用 4 空格缩进
-- 类和函数之间空一行
-- 方法之间空两行
-- 字符串使用单引号
-- 文件末尾保留一个空行

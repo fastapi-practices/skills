@@ -1,167 +1,122 @@
-# API 和路由规范
+# API Reference
 
-## 目录
+## Route Structure
 
-- [路由组织结构](#路由组织结构)
-- [事务处理](#事务处理)
-- [响应规范](#响应规范)
-- [JWT 认证](#jwt-认证)
-- [RBAC 权限](#rbac-权限)
-- [限流](#限流)
-- [国际化](#国际化)
-
-**相关文档**：[Schema 定义](schema.md) | [编码风格](coding-style.md) | [插件开发](plugin.md)
-
----
-
-## 路由组织结构
-
-fba 中的路由遵循 RESTful API 规范
-
-### 包含子包的应用
+Routes in fba follow RESTful API conventions
 
 ```
-backend/
-└── app/
-    └── xxx/                        # 自定义应用
-        ├── __init__.py
-        └── api/
-            ├── __init__.py
-            ├── router.py           # 在此文件内注册所有子包 __init__.py 文件中的路由
-            └── v1/
-                ├── __init__.py
-                ├── auth/           # 子包
-                │   ├── __init__.py # 在此文件内注册子包内 xxx.py 文件中的路由
-                │   ├── auth.py
-                │   └── captcha.py
-                └── sys/            # 子包
-                    ├── __init__.py # 在此文件内注册子包内 xxx.py 文件中的路由
-                    ├── user.py
-                    └── role.py
+backend
+├── app
+│   ├── xxx                           # Custom app (Contains sub-packages).
+│   │   └── api
+│   │       ├── v1
+│   │       │   └── xxx               # Sub-package
+│   │       │       ├── __init__.py   # Routes in the xxx.py file within this file are registered within the subpack.
+│   │       │       ├── xxx.py
+│   │       │       └── ...
+│   │       ├── __init__.py
+│   │       └── router.py             # Register the routes in the __init__.py files of all sub-packages within this file.
+│   └── xxx                           # Custom app (No sub-packages are included).
+│       └── api
+│           ├── v1
+│           │   ├── __init__.py       # Do nothing.
+│           │   ├── xxx.py
+│           │   └── ...
+│           ├── __init__.py
+│           └── router.py             # Register all routes from the xxx.py files within this file.
+├── __init__.py
+└── router.py                         # Register all routes in the router.py file under the app directory within this file.
 ```
 
-### 不包含子包的应用
+### Route Import Rules
 
-```
-backend/
-└── app/
-    └── xxx/                        # 自定义应用
-        ├── __init__.py
-        └── api/
-            ├── __init__.py
-            ├── router.py           # 在此文件内注册所有 xxx.py 文件中的路由
-            └── v1/
-                ├── __init__.py     # 不做任何操作
-                ├── task.py
-                └── job.py
-```
-
-### 路由导入规范
-
-统一命名所有接口路由参数为 `router`，导入时务必使用 `as` 别名避免冲突：
+All API route parameters should be uniformly named `router`. When importing, always use `as` aliases to avoid conflicts:
 
 ```python
-# 正确 ✓
-from backend.app.admin.api.v1.sys.api import router as api_router
 from backend.app.admin.api.v1.sys.user import router as user_router
-
-# 错误 ✗ - 会导致命名冲突
-from backend.app.admin.api.v1.sys.api import router
-from backend.app.admin.api.v1.sys.user import router
 ```
 
-### RESTful 路由约定
+### RESTful Route Conventions
 
 ```
-GET    /api/v1/resources/all     # 所有（不分页）
-GET    /api/v1/resources         # 列表（分页）
-GET    /api/v1/resources/{pk}    # 详情
-POST   /api/v1/resources         # 创建
-PUT    /api/v1/resources/{pk}    # 更新
-DELETE /api/v1/resources/{pk}    # 删除
-DELETE /api/v1/resources         # 批量删除
+GET    /api/v1/resources/all     # All (non-paginated)
+GET    /api/v1/resources         # List (paginated)
+GET    /api/v1/resources/{pk}    # Details
+POST   /api/v1/resources         # Create
+PUT    /api/v1/resources/{pk}    # Update
+DELETE /api/v1/resources/{pk}    # Delete
+DELETE /api/v1/resources         # Batch delete
 ```
 
----
+## Database Transaction
 
-## 事务处理
+### CurrentSession (Read-only Session)
 
-### CurrentSession（只读会话）
-
-用于查询操作，**不自动开启事务**：
+Used for query operations:
 
 ```python
-from backend.database.db import CurrentSession
-
-
 @router.get('/users')
-async def get_users(db: CurrentSession) -> ResponseModel:
-    users = await user_service.get_list(db=db)
-    return response_base.success(data=users)
+async def get_all_users(db: CurrentSession) -> ResponseModel:
+    data = await user_service.get_all(db=db)
+    return response_base.success(data=data)
 ```
 
-### CurrentSessionTransaction（事务会话）
+### CurrentSessionTransaction (Transaction Session)
 
-用于增删改操作，**自动开启事务并提交**：
+Used for create/update/delete operations:
 
 ```python
-from backend.database.db import CurrentSessionTransaction
-
-
 @router.post('/users')
-async def create_user(db: CurrentSessionTransaction, obj: CreateUserParam) -> ResponseModel:
+async def create_user(db: CurrentSessionTransaction, obj: CreateApiParam) -> ResponseModel:
     await user_service.create(db=db, obj=obj)
     return response_base.success()
 ```
 
-### 手动事务（begin）
+### Manual Transaction (begin)
 
-用于需要在任意位置开启事务的场景：
+Used for scenarios that need to start a transaction at any point:
 
 ```python
-from backend.database.db import async_db_session
-
-
-async def create(*, obj: CreateIns) -> None:
-    async with async_db_session.begin() as db:
-        await xxx_dao.create(db, obj)
+async with async_db_session.begin() as db:
+    ...
 ```
 
 ---
 
-## 响应规范
+## Response Standards
 
-### 响应模型
+### Response Models
+
+**No data response**
 
 ```python
-from backend.common.response.response_schema import ResponseModel, ResponseSchemaModel, response_base
-
-
-# 无数据响应
-@router.delete('/{pk}')
-async def delete_item(db: CurrentSessionTransaction, pk: int) -> ResponseModel:
-    await item_service.delete(db=db, pk=pk)
+@router.create('/users')
+async def create_user(db: CurrentSessionTransaction, obj: CreateApiParam) -> ResponseModel:
+    await user_service.create(db=db, obj=obj)
     return response_base.success()
-
-
-# 带数据响应（Swagger 文档可见数据结构）
-@router.get('/{pk}')
-async def get_item(db: CurrentSession, pk: int) -> ResponseSchemaModel[GetItemDetail]:
-    item = await item_service.get(db=db, pk=pk)
-    return response_base.success(data=item)
 ```
 
-### 返回方法
+**With data response**
 
-| 方法 | 用途 | 默认响应 |
-|------|------|----------|
-| `response_base.success()` | 成功响应 | `{"code": 200, "msg": "请求成功", "data": null}` |
-| `response_base.fail()` | 失败响应 | `{"code": 400, "msg": "请求错误", "data": null}` |
-| `response_base.fast_success()` | 高性能响应（大型 JSON） | 同 success，但跳过 Pydantic 验证 |
+```python
+@router.get('/{pk}')
+async def get_user(db: CurrentSession, pk: int) -> ResponseSchemaModel[GetApiDetail]:
+    data = await user_service.get(db=db, pk=pk)
+    return response_base.success(data=data)
+```
 
-### 驼峰返回
+### Response Methods
 
-如需响应数据自动转为小驼峰命名，修改 `backend/common/schema.py`：
+| Method                         | Purpose                                | Default Response                                           |
+|--------------------------------|----------------------------------------|------------------------------------------------------------|
+| `response_base.success()`      | Success response                       | `{"code": 200, "msg": "Request successful", "data": null}` |
+| `response_base.fail()`         | Failure response                       | `{"code": 400, "msg": "Request error", "data": null}`      |
+| `response_base.fast_success()` | High-performance response (large JSON) | Same as success, but skips Pydantic validation             |
+
+### Camel Case Response
+
+To automatically convert response data to lowerCamelCase (e.g., `created_time` → `createdTime`), modify
+`backend/common/schema.py`:
 
 ```python
 from pydantic.alias_generators import to_camel
@@ -174,105 +129,107 @@ class SchemaBase(BaseModel):
     )
 ```
 
----
+After configuration, response data will be automatically converted.
 
-## JWT 认证
+## JWT Authentication
 
-### 接口鉴权
+### API Authentication
 
 ```python
-from backend.common.security.jwt import DependsJwtAuth
-
-
-@router.get('/users', summary='获取用户列表', dependencies=[DependsJwtAuth])
+@router.get('/users', summary='获取 API 列表', dependencies=[DependsJwtAuth])
 async def get_users(db: CurrentSession) -> ResponseModel:
-    pass
+    ...
 ```
 
-### Token 授权方式
+### Token Authorization Methods
 
-fba 内置 token 授权方式遵循 [RFC 6750](https://datatracker.ietf.org/doc/html/rfc6750)：
+The built-in token authorization in fba follows [RFC 6750](https://datatracker.ietf.org/doc/html/rfc6750):
 
-- **Swagger 登录**: 快捷授权方式，仅用于调试
-- **验证码登录**: 配合前端实现登录授权
+- **Swagger Login**: Quick authorization method, used for debugging only
+- **Captcha Login**: Login authorization implemented with the frontend
 
 ---
 
-## RBAC 权限
+## RBAC Permissions
 
-### 角色菜单模式（默认）
+### Role-Menu Mode (Default)
 
 ```python
-from fastapi import Depends
-from backend.common.security.permission import RequestPermission
-from backend.common.security.rbac import DependsRBAC
-
-
 @router.post(
     '/users',
-    summary='创建用户',
+    summary='创建 API',
     dependencies=[
-        Depends(RequestPermission('sys:user:add')),  # 权限标识
-        DependsRBAC,  # RBAC 鉴权
+        Depends(RequestPermission('sys:user:add')),
+        DependsRBAC,
     ],
 )
-async def create_user(db: CurrentSessionTransaction, obj: CreateUserParam) -> ResponseModel:
-    pass
+async def create_user(db: CurrentSessionTransaction, obj: CreateApiParam) -> ResponseModel:
+    ...
 ```
 
-### 权限标识格式
+### Permission Identifier Format
 
-`模块:资源:操作`，例如：
+`module:resource:action`, for example:
 
-- `sys:user:add` - 添加用户
-- `sys:user:edit` - 编辑用户
-- `sys:user:del` - 删除用户
-- `sys:role:list` - 角色列表
+- `sys:user:add` - Add user
+- `sys:user:edit` - Edit user
+- `sys:user:del` - Delete user
 
----
+## Rate Limiting
 
-## 限流
+**Single rule**: max 60 requests per minute
 
 ```python
-from fastapi import Depends
-from fastapi_limiter.depends import RateLimiter
+from pyrate_limiter import Duration, Rate
+
+from backend.utils.limiter import RateLimiter
 
 
-# 1分钟最多5次请求
-@router.post('/login', dependencies=[Depends(RateLimiter(times=5, minutes=1))])
-async def login():
-    pass
-
-
-# 组合限流：1分钟最多5次 + 30秒最多3次
-@router.post('/login', dependencies=[
-    Depends(RateLimiter(times=5, minutes=1)),
-    Depends(RateLimiter(times=3, seconds=30)),
-])
-async def login():
-    pass
+@app.get(
+    "/example", 
+    dependencies=[Depends(RateLimiter(Rate(5, Duration.MINUTE)))]
+)
+async def example():
+    ...
 ```
 
----
-
-## 国际化
-
-### 使用语法
+**Multi-rule compound rate limiting**: 10 per second + 100 per minute
 
 ```python
-from backend.common.i18n import t
+from pyrate_limiter import Duration, Rate
 
-# 获取语言包中的字段值
+from backend.utils.limiter import RateLimiter
+
+
+@app.post(
+    "/heavy", 
+    dependencies=[
+        Depends(
+            RateLimiter(
+                Rate(10, Duration.SECOND),
+                Rate(100, Duration.MINUTE),
+            )
+        )
+    ]
+)
+async def heavy_endpoint():
+    ...
+```
+
+## I18n
+
+### Usage Syntax
+
+Chain-style access to get field values from the language pack
+
+```python
 msg = t('response.success')
-
-# 链式获取
-msg = t('error.captcha.expired')
 ```
 
-### 语言包位置
+### Language Pack Location
 
-`backend/locale` 目录，支持 json 和 yaml/yml 格式
+`backend/locale` directory, supports `.json` and `.yaml/.yml` files
 
-### 动态切换
+### Dynamic Switching
 
-自动获取请求头中的 `Accept-Language` 参数
+Automatically retrieves the `Accept-Language` parameter from the request header

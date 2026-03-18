@@ -111,6 +111,7 @@ if not user.status:
 
 - Use reStructuredText style
 - Do not use `:raise:` `:rtype:` or other tags
+- `:return:` after which nothing is added
 
 The following examples include class, function without parameters, and function with parameters
 

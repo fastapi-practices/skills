@@ -12,7 +12,7 @@ Official documentation: https://fastapi-practices.github.io/fastapi_best_archite
 
 ## Core Architecture
 
-Project adopts **Pseudo-three-tier architecture**:
+Project adopts **Three-tier architecture**:
 
 | Layer   | Responsibility                                                     |
 |---------|--------------------------------------------------------------------|

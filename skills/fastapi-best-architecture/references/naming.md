@@ -24,7 +24,50 @@ class User:
     ...
 ```
 
-## CRUD Method Naming
+## Schema Naming And Sort
+
+Following these naming conventions:
+
+| Type                   | Naming Pattern               | Example                     |
+|------------------------|------------------------------|-----------------------------|
+| Base Schema            | `XxxSchemaBase(SchemaBase)`  | `UserSchemaBase`            |
+| API param              | `XxxParam()`                 | `UserParam`                 |
+| Create param           | `CreateXxxParam()`           | `CreateUserParam`           |
+| Update param           | `UpdateXxxParam()`           | `UpdateUserParam`           |
+| Batch delete param     | `DeleteXxxParam()`           | `DeleteUserParam`           |
+| Get details            | `GetXxxDetail()`             | `GetUserDetail`             |
+| Get details (join)     | `GetXxxWithJoinDetail()`     | `GetUserWithJoinDetail`     |
+| Get details (relation) | `GetXxxWithRelationDetail()` | `GetUserWithRelationDetail` |
+| Get tree               | `GetXxxTree()`               | `GetMenuTree`               |
+
+## API Function Naming And Sort
+
+Lowercase with underscores, paginated lists use `_paginated` suffix:
+
+| Operation      | Naming Pattern       | Example               |
+|----------------|----------------------|-----------------------|
+| Get all        | `get_all_xxxs`       | `get_all_users`       |
+| Paginated list | `get_xxxs_paginated` | `get_users_paginated` |
+| Get details    | `get_xxx`            | `get_user`            |
+| Create         | `create_xxx`         | `create_user`         |
+| Update         | `update_xxx`         | `update_user`         |
+| Delete         | `delete_xxx`         | `delete_user`         |
+| Batch delete   | `delete_xxxs`        | `delete_users`        |
+
+## Service Method Naming And Sort
+
+Following these naming conventions:
+
+| Method       | Purpose              |
+|--------------|----------------------|
+| `get_all()`  | Get all              |
+| `get()`      | Get details          |
+| `get_list()` | Get list (paginated) |
+| `create()`   | Create               |
+| `update()`   | Update               |
+| `delete()`   | Delete               |
+
+## CRUD Method Naming And Sort
 
 Following these naming conventions:
 
@@ -41,47 +84,3 @@ Following these naming conventions:
 | `create()`            | Create                        |
 | `update()`            | Update                        |
 | `delete()`            | Delete                        |
-
-## Service Method Naming
-
-Following these naming conventions:
-
-| Method       | Purpose              |
-|--------------|----------------------|
-| `get_all()`  | Get all              |
-| `get()`      | Get details          |
-| `get_list()` | Get list (paginated) |
-| `create()`   | Create               |
-| `update()`   | Update               |
-| `delete()`   | Delete               |
-
-## API Function Naming
-
-Lowercase with underscores, paginated lists use `_paginated` suffix:
-
-| Operation      | Naming Pattern       | Example               |
-|----------------|----------------------|-----------------------|
-| Get all        | `get_all_xxxs`       | `get_all_users`       |
-| Paginated list | `get_xxxs_paginated` | `get_users_paginated` |
-| Get details    | `get_xxx`            | `get_user`            |
-| Create         | `create_xxx`         | `create_user`         |
-| Update         | `update_xxx`         | `update_user`         |
-| Delete         | `delete_xxx`         | `delete_user`         |
-| Batch delete   | `delete_xxxs`        | `delete_users`        |
-
-## Schema Naming
-
-Following these naming conventions:
-
-| Type                   | Naming Pattern               | Example                     |
-|------------------------|------------------------------|-----------------------------|
-| Base Schema            | `XxxSchemaBase(SchemaBase)`  | `UserSchemaBase`            |
-| API param              | `XxxParam()`                 | `UserParam`                 |
-| Create param           | `CreateXxxParam()`           | `CreateUserParam`           |
-| Update param           | `UpdateXxxParam()`           | `UpdateUserParam`           |
-| Batch delete param     | `DeleteXxxParam()`           | `DeleteUserParam`           |
-| Get details            | `GetXxxDetail()`             | `GetUserDetail`             |
-| Get details (join)     | `GetXxxWithJoinDetail()`     | `GetUserWithJoinDetail`     |
-| Get details (relation) | `GetXxxWithRelationDetail()` | `GetUserWithRelationDetail` |
-| Get tree               | `GetXxxTree()`               | `GetMenuTree`               |
-

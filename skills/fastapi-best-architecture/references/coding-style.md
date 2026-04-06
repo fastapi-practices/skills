@@ -1,5 +1,7 @@
 # Coding Style Reference
 
+Fully comply with PEP8 and cooperate with the following requirements
+
 ## Import Rules
 
 - Each import statement should only import one module
@@ -157,13 +159,24 @@ async def get_user(
 
 ## Code Formatting
 
-### Ruff Configuration
+### Ruff
 
 The project uses Ruff for code formatting and linting, Ruff configuration is located in pyproject.toml
 
 ### Pre-commit
 
+Built-in CLI
+
 ```bash
 fba format
 ```
 
+Generic commands
+
+```bash
+ruff format
+```
+
+```bash
+ruff check --fix --unsafe-fixes
+```

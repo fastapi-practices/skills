@@ -76,43 +76,19 @@ class UserService:
 
 ## Function Definitions
 
-- Use module-level functions for logic that does not belong to a class.
-- Inside a class, choose the method type based on actual binding semantics instead of habit.
-- If a method calls another method in the same class, define it as an instance method and call the sibling method through `self`.
-- Do not keep a method as `@staticmethod` when it calls another method in the same class.
-- If a method does not call sibling methods and does not depend on instance state, keep it as `@staticmethod`.
-- If a method uses class-level behavior or class state, define it as `@classmethod`.
-- If a method uses instance state, define it as an instance method with `self`.
-- Do not define a method inside a class without `self`, `cls`, or `@staticmethod`. That is misleading and should be avoided.
-- Do not add private functions mechanically. A private function must exist because it improves responsibility boundaries, not because the current function feels long.
-- Do not wrap logic in a private helper if the helper is only called once and does not create a clearer boundary.
-- Do not create private helpers that merely rename a short code block, forward parameters, or hide obvious control flow.
-- Do not use abstraction as decoration. Avoid over-encapsulation, unnecessary helper layers, and utility dumping.
-- Extract a private function only when it has a clear semantic responsibility, reusable value, or boundary value that improves readability and maintenance.
-
-```python
-class UserFormatter:
-    """用户格式化类"""
-
-    @staticmethod
-    def validate(text: str) -> str:
-        """静态方法"""
-        return text.strip()
-
-    def format(self, text: str) -> str:
-        """实例方法"""
-        content = self.validate(text)
-        return f'结果: {content}'
-
-    @staticmethod
-    def join_lines(lines: list[str]) -> str:
-        """静态方法"""
-        return '\\n'.join(lines)
-
-
-formatter = UserFormatter()
-formatter.format(' hello ')
-```
+- **Prefer module-level functions**: Logic that does not belong to any class should be defined as module-level functions rather than inside a class.
+- **Choose method type based on actual binding semantics** (not habit):
+  - If a method calls another method in the same class, define it as an instance method and call it through `self`.
+  - If a method does not call sibling methods and does not depend on instance state, keep it as `@staticmethod`.
+  - If a method uses class-level behavior or class state, define it as `@classmethod`.
+  - If a method uses instance state, define it as an instance method with `self`.
+- **Avoid misleading definitions**: Every method inside a class must explicitly use `self`, `cls`, or `@staticmethod`. Do not omit them.
+- **Private function extraction rules**:
+  - Extract a private function only when it creates a clear responsibility boundary, provides real reusable value, or significantly improves readability and maintainability.
+  - Do not add private functions mechanically just because a function feels long.
+  - Do not wrap logic in a helper if it is called only once and does not create a clearer boundary.
+  - Avoid helpers that merely rename short code blocks, forward parameters, or hide obvious control flow.
+- **Avoid abstraction as decoration**: Eliminate over-encapsulation, unnecessary helper layers, and utility dumping.
 
 ## Documentation and Comments
 

@@ -24,7 +24,7 @@ class User:
     ...
 ```
 
-## Schema Naming And Sort
+## Schema Naming And Definition Order
 
 Following these naming conventions:
 
@@ -40,7 +40,7 @@ Following these naming conventions:
 | Get details (relation) | `GetXxxWithRelationDetail()` | `GetUserWithRelationDetail` |
 | Get tree               | `GetXxxTree()`               | `GetMenuTree`               |
 
-## API Function Naming And Sort
+## API Function Naming And Definition Order
 
 Lowercase with underscores, paginated lists use `_paginated` suffix:
 
@@ -54,7 +54,7 @@ Lowercase with underscores, paginated lists use `_paginated` suffix:
 | Delete         | `delete_xxx`         | `delete_user`         |
 | Batch delete   | `delete_xxxs`        | `delete_users`        |
 
-## Service Method Naming And Sort
+## Service Method Naming And Definition Order
 
 Following these naming conventions:
 
@@ -67,7 +67,7 @@ Following these naming conventions:
 | `update()`   | Update               |
 | `delete()`   | Delete               |
 
-## CRUD Method Naming And Sort
+## CRUD Method Naming And Definition Order
 
 Following these naming conventions:
 

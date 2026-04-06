@@ -74,6 +74,42 @@ class UserService:
         ...
 ```
 
+## Function Definitions
+
+- Use module-level functions for logic that does not belong to a class.
+- Inside a class, choose the method type based on actual binding semantics instead of habit.
+- If a method does not use `self` or `cls`, define it as `@staticmethod`.
+- If a method uses class-level behavior or class state, define it as `@classmethod`.
+- If a method uses instance state, define it as an instance method with `self`.
+- Do not define a method inside a class without `self`, `cls`, or `@staticmethod`. That is misleading and should be avoided.
+- Do not add private functions mechanically. A private function must exist because it improves responsibility boundaries, not because the current function feels long.
+- Do not wrap logic in a private helper if the helper is only called once and does not create a clearer boundary.
+- Do not create private helpers that merely rename a short code block, forward parameters, or hide obvious control flow.
+- Do not use abstraction as decoration. Avoid over-encapsulation, unnecessary helper layers, and utility dumping.
+- Extract a private function only when it has a clear semantic responsibility, reusable value, or boundary value that improves readability and maintenance.
+
+```python
+class UserFormatter:
+    """用户格式化类"""
+
+    @staticmethod
+    def static_method() -> None:
+        """静态方法"""
+        print('我是静态方法！')
+
+    @classmethod
+    def class_method(cls: type['UserFormatter']) -> None:
+        """类方法"""
+        print(f'我是{cls}的类方法！')
+
+    def instance_method(self: 'UserFormatter') -> None:
+        """实例方法"""
+        print(f'我是{self}的实例方法！')
+
+
+formatter = UserFormatter()
+```
+
 ## Documentation and Comments
 
 ### Comments

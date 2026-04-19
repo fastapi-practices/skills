@@ -3,7 +3,7 @@ name: fba
 description: FastAPI Best Architecture (fba) project development guide. Provide complete architecture specifications, coding styles, and plugin development guidance.
 metadata:
   author: FastAPI practices team
-  version: 2026-02-25
+  version: 2026-04-19
 ---
 
 # FastAPI Best Architecture

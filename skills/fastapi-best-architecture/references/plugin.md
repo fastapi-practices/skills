@@ -126,6 +126,127 @@ xxx                             # Plugin name (required)
 └── requirements.txt            # Dependency packages file
 ```
 
+## Plugin README Convention
+
+When creating, reviewing, or updating a plugin `README.md`, follow these rules strictly.
+
+### Required Structure
+
+A plugin `README.md` must contain only the following content, in this order:
+
+1. Title
+2. Description
+3. Plugin Type
+4. Configuration
+5. Usage
+6. Uninstall
+7. Contact
+
+### Section Rules
+
+#### Title
+
+Use the plugin display name as the H1 title.
+
+Example:
+
+```md
+# OAuth2
+```
+
+#### Description
+
+Place a short description immediately below the title.
+
+Keep it concise and use this part to explain the plugin capabilities.
+
+Capability summaries may be written as short paragraphs or short bullet lists directly under the title.
+
+Do not create a separate feature section for plugin capabilities.
+
+#### Plugin Type
+
+Only describe the plugin type, such as app-level or extend-level.
+
+For extend-level plugins, you may include the target app name such as `admin`.
+
+Do not include route prefixes, API mount paths, or endpoint information.
+
+#### Configuration
+
+Directly explain how to configure the plugin.
+
+Describe relevant `.env`, `plugin.toml`, and `backend/core/conf.py` content clearly.
+
+Always present configuration in this order:
+
+1. What to add in `.env`
+2. What is contained in `[settings]` of `plugin.toml`
+3. What to add in `backend/core/conf.py`
+
+Only include configuration sources that actually have meaningful content.
+
+Do not add placeholder lines such as `无需添加内容`, `无需补充额外配置`, or equivalent no-op statements for omitted sources.
+
+When the plugin has corresponding fields in `backend/core/conf.py`, include the exact field definitions or explain that they are already present in the current project.
+
+When you show `backend/core/conf.py` content, keep the actual comment lines and grouping style consistent with the real file, including lines such as `##################################################`, `# .env`, and `# 基础配置（in plugin.toml）` when they exist.
+
+When the plugin does not need extra `backend/core/conf.py` fields, state that explicitly.
+
+Use direct instruction wording.
+
+Avoid conditional phrasing such as `if needed`, `when enabled`, `如需`, or `如果`.
+
+Do not add per-item configuration explanations in this section unless the user explicitly asks for them.
+
+For `plugin.toml`, prefer wording such as `plugin.toml` 的 `[settings]` 中包含以下内容` rather than `添加以下内容`.
+
+#### Usage
+
+Describe only the core usage flow in plain language.
+
+Keep this section short and focused.
+
+Do not list API endpoints, route prefixes, request paths, or interface details.
+
+#### Uninstall
+
+Describe which related configuration should be removed and what integrations should be cleaned up.
+
+Use high-level cleanup wording by default.
+
+Do not enumerate specific configuration keys in the uninstall section unless the user explicitly asks for them.
+
+#### Contact
+
+Provide author/contact entry in a concise way.
+
+### Forbidden Content
+
+Do not include the following in plugin `README.md` files:
+
+- Route prefixes
+- API endpoint lists
+- Interface descriptions
+- Feature sections
+- Warning sections
+- Note sections
+- FAQ sections
+- Extra headings outside the required structure
+
+### Punctuation Rule
+
+Do not end prose lines or list items with the Chinese full stop `。`.
+
+This rule does not apply to code blocks.
+
+### Style Rule
+
+Keep wording concise, direct, and operational.
+
+Prefer short paragraphs and short numbered lists.
+
 ## Hot-pluggable Configuration
 
 **Plugin Environment Variables**
@@ -140,7 +261,7 @@ MY_PLUGIN_PASSWORD: str
 
 **Plugin Basic Configuration**
 
-Add in the `[settings]` section of `plugin.toml`:
+Content in the `[settings]` section of `plugin.toml`:
 
 ```toml
 [settings]

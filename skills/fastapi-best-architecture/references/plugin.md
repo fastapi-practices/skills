@@ -1,129 +1,298 @@
-# Plugin Development Standards
+﻿# Plugin Development Standards
 
 ## Plugin Types
 
-### App-level
+### App-level Plugin
 
-Injected into the system like an application, with a complete route structure
+An app-level plugin is injected into the system like a normal application. In fba, first-level folders under `app` are treated as applications, and the same rule applies to app-level plugins.
+
+App-level plugins must follow the normal route structure completely.
 
 ```toml
 [app]
 router = ['v1']
 ```
 
-### Extend-level
+### Extend-level Plugin
 
-Injected into an existing application under the app directory, must replicate the target application's api directory
-structure 1:1
+An extend-level plugin is injected into an existing application under the `app` directory.
+
+Extend-level plugins must copy the target application's `api` directory structure 1:1.
 
 ```toml
 [app]
 extend = 'admin'
 ```
 
-## plugin.toml Configuration
+## Plugin Route Injection
 
-### App-level
+If a plugin satisfies the plugin development requirements, all routes in the plugin are automatically injected into the FastAPI application.
 
-```toml
-# 插件信息
-[plugin]
-# 图标（插件仓库内的图标路径或图标链接地址）
-icon = 'assets/icon.svg'
-# 摘要（简短描述）
-summary = ''
-# 版本号
-version = ''
-# 描述
-description = ''
-# 作者
-author = ''
-# 标签
-# 当前支持：ai、mcp、agent、auth、storage、notification、task、payment、other
-tags = ['']
-# 数据库支持
-# 当前支持：mysql、postgresql
-database = ['']
+Startup time can increase as the number of plugins grows because fba parses all plugins in real time before each startup.
 
-# 应用配置
-[app]
-# 路由器最终实例
-# 可参考源码：backend/app/admin/api/router.py，通常默认命名为 v1
-router = ['v1']
+### App-level Routes
 
-# 代码中的配置项（全大写）
-# 该配置项为可选
-[settings]
-MY_PLUGIN_CONFIG = 'value'
-```
+Develop routes according to the standard fba route structure.
 
-### Extend-level
+### Extend-level Routes
 
-```toml
-# 插件信息
-[plugin]
-# 图标（插件仓库内的图标路径或图标链接地址）
-icon = 'assets/icon.svg'
-# 摘要（简短描述）
-summary = ''
-# 版本号
-version = ''
-# 描述
-description = ''
-# 作者
-author = ''
-# 标签
-# 当前支持：ai、mcp、agent、auth、storage、notification、task、payment、other
-tags = ['']
-# 数据库支持
-# 当前支持：mysql、postgresql
-database = ['']
+Replicate the existing application's `api` directory structure 1:1. For example, the built-in `notice` plugin extends an existing application by mirroring its API layout.
 
-# 应用配置
-[app]
-# 扩展的哪个应用
-extend = '应用文件夹名称'
+## Database Compatibility
 
-# 接口配置
-[api.xxx]
-# xxx 对应的是插件 api 目录下接口文件的文件名（不包含后缀）
-# 例如接口文件名为 notice.py，则 xxx 应该为 notice
-# 如果包含多个接口文件，则应存在多个接口配置
-# 路由前缀，必须以 '/' 开头
-prefix = ''
-# 标签，用于 Swagger 文档
-tags = ''
+Official fba implementations support both MySQL and PostgreSQL.
 
-# 代码中的配置项（全大写）
-# 该配置项为可选，详情请查看：Hot-pluggable Configuration
-[settings]
-MY_PLUGIN_CONFIG = 'value'
-```
+Third-party plugins are not required to support both databases, but plugin authors should declare supported databases in `plugin.toml`.
 
-## Plugin Directory Structure
+For cross-database SQLAlchemy compatibility, use SQLAlchemy 2.0 mechanisms such as `TypeDecorator` and `with_variant`.
 
-```
-xxx                             # Plugin name (required)
-├── api                         # API (required)
+## Backend Plugin Directory Structure
+
+Plugins are placed under `backend/plugin`.
+
+```text
+xxx                             # Plugin name
+├── api                         # API routes
 ├── crud                        # CRUD
 ├── model                       # Models
-│   └── __init__.py             # Import all model classes in this file (required if directory exists)
-├── schema                      # Data transfer
+│   ├── __init__.py             # Import all model classes here
+│   └── ...
+├── schema                      # Data transfer schemas
 ├── service                     # Services
-├── sql                         # Recommended if the plugin needs to execute SQL
+├── sql                         # Recommended when the plugin executes SQL
 │   ├── mysql
-│   │   ├── init.sql            # Auto-increment ID mode
-│   │   └── init_snowflake.sql  # Snowflake ID mode
+│   │   ├── destroy.sql         # Auto-increment ID cleanup, executed on uninstall
+│   │   ├── destroy_snowflake.sql # Snowflake ID cleanup
+│   │   ├── init.sql            # Auto-increment ID initialization, executed on install
+│   │   └── init_snowflake.sql  # Snowflake ID initialization
 │   └── postgresql
-│       ├── init.sql            # Auto-increment ID mode
-│       └── init_snowflake.sql  # Snowflake ID mode
+│       └── ...                 # Same file names as mysql
 ├── utils                       # Utilities
 ├── .env.example                # Environment variables
-├── __init__.py                 # Kept as a Python package (required)
-├── ...                         # More content, e.g. enums.py...
-├── plugin.toml                 # Configuration file (required)
-├── README.md                   # Usage instructions and your contact info (required)
-└── requirements.txt            # Dependency packages file
+├── __init__.py                 # Kept as a Python package
+├── ...                         # More content, e.g. enums.py
+├── hooks.py                    # Optional plugin hook functions
+├── plugin.toml                 # Plugin configuration file
+├── README.md                   # Usage instructions and contact information
+└── requirements.txt            # Dependency packages
+```
+
+## plugin.toml Configuration
+
+Every plugin must contain `plugin.toml`.
+
+### Common Plugin Metadata
+
+```toml
+[plugin]
+# Icon path inside the plugin repository or an icon URL
+icon = 'assets/icon.svg'
+# Short summary
+summary = ''
+# Version
+version = ''
+# Description
+description = ''
+# Author
+author = ''
+# Supported tags: ai, mcp, agent, auth, storage, notification, task, payment, other
+tags = ['']
+# Supported databases: mysql, postgresql
+database = ['']
+```
+
+### App-level Plugin Configuration
+
+```toml
+# Plugin metadata
+[plugin]
+icon = 'assets/icon.svg'
+summary = ''
+version = ''
+description = ''
+author = ''
+tags = ['']
+database = ['']
+
+# Application configuration
+[app]
+# Final router instance names.
+# See backend/app/admin/api/router.py; usually named v1.
+router = ['v1']
+
+# Code-level configuration keys in uppercase.
+# Optional. See Hot-pluggable Configuration.
+[settings]
+XXX = 'value'
+```
+
+### Extend-level Plugin Configuration
+
+```toml
+# Plugin metadata
+[plugin]
+icon = 'assets/icon.svg'
+summary = ''
+version = ''
+description = ''
+author = ''
+tags = ['']
+database = ['']
+
+# Application configuration
+[app]
+# Target application folder name
+extend = 'application_folder_name'
+
+# API configuration
+[api.xxx]
+# xxx is the file name under the plugin api directory without extension.
+# Example: for notice.py, use [api.notice].
+# Multiple API files require multiple [api.xxx] sections.
+# Route prefix, must start with '/'.
+prefix = ''
+# Tags for Swagger documentation
+tags = ''
+
+# Code-level configuration keys in uppercase.
+# Optional. See Hot-pluggable Configuration.
+[settings]
+XXX = 'value'
+```
+
+## Global Configuration
+
+fba uses one global configuration file, similar to Django.
+
+During development, add plugin global configuration to `backend/core/conf.py` for typing hints and explicit configuration management.
+
+```python
+##################################################
+# [ Plugin ] email
+##################################################
+# .env
+EMAIL_USERNAME: str
+EMAIL_PASSWORD: str
+
+# Basic configuration
+EMAIL_HOST: str
+EMAIL_PORT: int
+EMAIL_SSL: bool
+EMAIL_CAPTCHA_REDIS_PREFIX: str
+EMAIL_CAPTCHA_EXPIRE_SECONDS: int
+```
+
+The structure should contain:
+
+1. Plugin configuration comment block.
+2. Plugin environment variable declarations and comments.
+3. Plugin basic configuration declarations and comments.
+
+Published plugins cannot modify the user's `backend/core/conf.py` directly. Document required global configuration in the plugin `README.md`.
+
+## Hot-pluggable Configuration
+
+Since fba v1.13.0, plugins can adapt to hot-pluggable installation when configured correctly.
+
+### Plugin Environment Variables
+
+If the plugin requires environment variables, add `.env.example` in the plugin root directory.
+
+```dotenv
+# [ Plugin ] email
+EMAIL_USERNAME: str
+EMAIL_PASSWORD: str
+```
+
+### Plugin Basic Configuration
+
+If the plugin requires basic configuration, add uppercase configuration keys under `[settings]` in `plugin.toml`.
+
+Do not confuse `plugin.toml` settings with `backend/core/conf.py` declarations. Their formats are different.
+
+```toml
+[settings]
+EMAIL_HOST = 'smtp.qq.com'
+EMAIL_PORT = 465
+EMAIL_SSL = true
+EMAIL_CAPTCHA_REDIS_PREFIX = 'fba:email:captcha'
+EMAIL_CAPTCHA_EXPIRE_SECONDS = 180
+```
+
+After `.env.example` and `[settings]` are configured, plugins installed through CLI or Git can adapt to hot-pluggable behavior without extra manual changes, provided the plugin has no additional integration requirements.
+
+### Global Configuration Priority
+
+Configuration priority flows in this order:
+
+```text
+System environment variables -> .env -> conf.py -> plugin [settings]
+```
+
+Development recommendation:
+
+- Add global configuration declarations in `backend/core/conf.py` during development.
+- Document those declarations in the published plugin `README.md`.
+- Use this approach when IDE typing hints are important for plugin developers or users.
+
+## Hook Functions
+
+Since fba v1.13.3, plugins support hook functions for more flexible configuration and reduced manual adaptation.
+
+Hook functions must be defined in `hooks.py` at the plugin root.
+
+fba also provides helper functions in `backend/plugin/patching.py` for plugin configuration.
+
+### lifespan
+
+Defines a FastAPI lifespan function. It is automatically registered before application startup.
+
+### setup
+
+Defines startup logic. Both synchronous and asynchronous setup functions are supported. The function is automatically executed before application startup.
+
+## Frontend Plugin Directory Structure
+
+Frontend plugins are placed under `apps/web-antd/src/plugins`.
+
+```text
+xxx                             # Plugin name
+├── api                         # API client code
+│   └── index.ts
+├── langs                       # I18n resources
+│   ├── en-US
+│   │   └── plugin_name.json
+│   └── zh-CN
+│       └── plugin_name.json
+├── public
+│   └── images                  # Page preview images
+├── routes                      # Routes
+│   └── index.ts
+├── views                       # Views
+│   ├── index.vue
+│   └── ...
+├── ...                         # More content
+└── plugin.toml                 # Plugin configuration file
+```
+
+## Frontend plugin.toml Configuration
+
+Every frontend plugin must contain `plugin.toml`.
+
+```toml
+[plugin]
+# Icon path inside the plugin repository or an icon URL
+icon = 'assets/icon.svg'
+# Short summary
+summary = ''
+# Version
+version = ''
+# Description
+description = ''
+# Author
+author = ''
+# Supported tags: ai, mcp, agent, auth, storage, notification, task, payment, other
+tags = ['']
 ```
 
 ## Plugin README Convention
@@ -168,7 +337,7 @@ Do not create a separate feature section for plugin capabilities.
 
 Only describe the plugin type, such as app-level or extend-level.
 
-For extend-level plugins, you may include the target app name such as `admin`.
+For extend-level plugins, include the target app name such as `admin` when useful.
 
 Do not include route prefixes, API mount paths, or endpoint information.
 
@@ -186,21 +355,21 @@ Always present configuration in this order:
 
 Only include configuration sources that actually have meaningful content.
 
-Do not add placeholder lines such as `无需添加内容`, `无需补充额外配置`, or equivalent no-op statements for omitted sources.
+Do not add placeholder lines such as `No extra content required`, `No additional configuration required`, or equivalent no-op statements for omitted sources.
 
 When the plugin has corresponding fields in `backend/core/conf.py`, include the exact field definitions or explain that they are already present in the current project.
 
-When you show `backend/core/conf.py` content, keep the actual comment lines and grouping style consistent with the real file, including lines such as `##################################################`, `# .env`, and `# 基础配置（in plugin.toml）` when they exist.
+When showing `backend/core/conf.py` content, keep the actual comment lines and grouping style consistent with the real file, including lines such as `##################################################`, `# .env`, and `# 基础配置（in plugin.toml）` when they exist.
 
 When the plugin does not need extra `backend/core/conf.py` fields, state that explicitly.
 
 Use direct instruction wording.
 
-Avoid conditional phrasing such as `if needed`, `when enabled`, `如需`, or `如果`.
+Avoid conditional phrasing such as `if needed`, `when enabled`, or equivalent optional wording.
 
 Do not add per-item configuration explanations in this section unless the user explicitly asks for them.
 
-For `plugin.toml`, prefer wording such as `plugin.toml` 的 `[settings]` 中包含以下内容` rather than `添加以下内容`.
+For `plugin.toml`, prefer wording such as `plugin.toml` 的 `[settings]` 中包含以下内容`rather than`添加以下内容`.
 
 #### Usage
 
@@ -247,49 +416,8 @@ Keep wording concise, direct, and operational.
 
 Prefer short paragraphs and short numbered lists.
 
-## Hot-pluggable Configuration
-
-**Plugin Environment Variables**
-
-Add `.env.example` in the plugin root directory:
-
-```env
-# [ Plugin ] my_plugin
-MY_PLUGIN_USERNAME: str
-MY_PLUGIN_PASSWORD: str
-```
-
-**Plugin Basic Configuration**
-
-Content in the `[settings]` section of `plugin.toml`:
-
-```toml
-[settings]
-MY_PLUGIN_HOST = 'localhost'
-MY_PLUGIN_PORT = 8080
-MY_PLUGIN_ENABLED = true
-```
-
-**Global Configuration (Optional)**
-
-For IDE type hints, add in `backend/core/conf.py`:
-
-```python
-##################################################
-# [ Plugin ] my_plugin
-##################################################
-# .env
-MY_PLUGIN_USERNAME: str
-MY_PLUGIN_PASSWORD: str
-
-# 基础配置
-MY_PLUGIN_HOST: str
-MY_PLUGIN_PORT: int
-MY_PLUGIN_ENABLED: bool
-```
-
 ## Important Notes
 
-> ⚠️ **Warning**: Unless necessary, try not to reference existing methods from the architecture in plugin code. If
-> existing methods in the architecture change, the plugin must be updated accordingly, otherwise the plugin will be
-> broken.
+Unless necessary, avoid referencing existing architecture methods from plugin code.
+
+If existing architecture methods change, plugins that depend on those methods must be updated, otherwise they can break.

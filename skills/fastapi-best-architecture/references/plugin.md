@@ -299,17 +299,88 @@ tags = ['']
 
 When creating, reviewing, or updating a plugin `README.md`, follow these rules strictly.
 
+Use the canonical plugin README style represented by the `ai` plugin README.
+
 ### Required Structure
 
 A plugin `README.md` must contain only the following content, in this order:
 
 1. Title
 2. Description
-3. Plugin Type
+3. Plugin type
 4. Configuration
 5. Usage
 6. Uninstall
 7. Contact
+
+Use the exact section headings and fixed labels from the canonical output contract below.
+
+### Canonical Output Contract
+
+The generated plugin `README.md` must use this exact localized structure and fixed labels:
+
+````md
+# <Plugin display name>
+
+<Short description>
+
+## 插件类型
+
+- <应用级插件 or 扩展级插件>
+
+## 配置说明
+
+在 `backend/.env` 中添加以下内容：
+
+```env
+<backend/.env variables>
+```
+
+插件目录下 `plugin.toml` 的 `[settings]` 中包含以下内容：
+
+```toml
+[settings]
+<plugin settings>
+```
+
+在 `backend/core/conf.py` 中添加以下内容：
+
+```python
+##################################################
+# [ Plugin ] <plugin_name>
+##################################################
+# .env
+<env field definitions>
+
+# 基础配置（in plugin.toml）
+<plugin.toml setting field definitions>
+```
+
+当前项目的 `backend/core/conf.py` 已包含以下字段：
+
+```python
+<existing plugin field definitions>
+```
+
+## 使用方式
+
+1. <core usage step>
+
+## 卸载说明
+
+- <cleanup item>
+
+## 联系方式
+
+- 作者：`<author>`
+- 反馈方式：提交 Issue 或 PR
+````
+
+Use only the configuration lead-in lines that apply to real content.
+
+Use either the `backend/core/conf.py` add-content lead-in or the already-present-fields lead-in, not both.
+
+Every included configuration source must follow this exact pattern: lead-in sentence, one blank line, fenced code block, one blank line before the next configuration source.
 
 ### Section Rules
 
@@ -335,7 +406,11 @@ Do not create a separate feature section for plugin capabilities.
 
 #### Plugin Type
 
-Only describe the plugin type, such as app-level or extend-level.
+Use the exact heading from the canonical output contract.
+
+Only describe the plugin type.
+
+Use a short bullet list with the exact canonical plugin type wording.
 
 For extend-level plugins, include the target app name such as `admin` when useful.
 
@@ -343,35 +418,57 @@ Do not include route prefixes, API mount paths, or endpoint information.
 
 #### Configuration
 
-Directly explain how to configure the plugin.
+Use the exact heading from the canonical output contract.
 
-Describe relevant `.env`, `plugin.toml`, and `backend/core/conf.py` content clearly.
+The configuration section must contain only canonical configuration blocks.
+
+Do not add an overview sentence before the first configuration block.
 
 Always present configuration in this order:
 
-1. What to add in `.env`
-2. What is contained in `[settings]` of `plugin.toml`
-3. What to add in `backend/core/conf.py`
+1. What to add in `backend/.env`
+2. What is contained in `[settings]` of the plugin directory `plugin.toml`
+3. What to add in `backend/core/conf.py`, or which plugin fields are already present there
 
 Only include configuration sources that actually have meaningful content.
 
-Do not add placeholder lines such as `No extra content required`, `No additional configuration required`, or equivalent no-op statements for omitted sources.
+Do not add no-op placeholder lines for omitted configuration sources.
+
+Do not add explanatory prose before or after any configuration code block.
+
+Do not add per-key descriptions, usage notes, defaults explanations, or conditional instructions in this section.
+
+Use the exact configuration lead-in sentences from the canonical output contract for `.env`, `plugin.toml`, and `backend/core/conf.py` blocks.
+
+Each configuration block must use the exact fenced code language from the canonical output contract:
+
+- `env` for `backend/.env`
+- `toml` for `plugin.toml`
+- `python` for `backend/core/conf.py`
+
+The `backend/.env` code block must contain only the variables that should be added to `backend/.env`.
+
+The `plugin.toml` code block must include the `[settings]` header and only the settings from the plugin directory `plugin.toml`.
+
+If the current project already contains the required plugin fields in `backend/core/conf.py`, state that directly before the code block.
 
 When the plugin has corresponding fields in `backend/core/conf.py`, include the exact field definitions or explain that they are already present in the current project.
 
-When showing `backend/core/conf.py` content, keep the actual comment lines and grouping style consistent with the real file, including lines such as `##################################################`, `# .env`, and `# 基础配置（in plugin.toml）` when they exist.
+When you show `backend/core/conf.py` content, keep the actual plugin grouping style consistent with the real file, including separator comments, plugin-name comments, `.env` comments, and plugin basic-configuration comments when they exist.
 
-When the plugin does not need extra `backend/core/conf.py` fields, state that explicitly.
+Show only fields that belong to the current plugin in the `backend/core/conf.py` block.
+
+Do not include unrelated global plugin fields such as installer, Redis prefix, or package-index settings in a plugin README.
 
 Use direct instruction wording.
 
-Avoid conditional phrasing such as `if needed`, `when enabled`, or equivalent optional wording.
+Avoid conditional phrasing such as `if needed`, `when enabled`, or localized equivalents in the configuration section.
 
-Do not add per-item configuration explanations in this section unless the user explicitly asks for them.
-
-For `plugin.toml`, prefer wording such as `plugin.toml` 的 `[settings]` 中包含以下内容`rather than`添加以下内容`.
+For `plugin.toml`, use the canonical lead-in that says the plugin directory `plugin.toml` contains the following `[settings]` content rather than instructing the reader to add that content.
 
 #### Usage
+
+Use the exact heading from the canonical output contract.
 
 Describe only the core usage flow in plain language.
 
@@ -381,15 +478,21 @@ Do not list API endpoints, route prefixes, request paths, or interface details.
 
 #### Uninstall
 
+Use the exact heading from the canonical output contract.
+
 Describe which related configuration should be removed and what integrations should be cleaned up.
 
 Use high-level cleanup wording by default.
 
 Do not enumerate specific configuration keys in the uninstall section unless the user explicitly asks for them.
 
+Use short bullet lists for multiple cleanup items.
+
 #### Contact
 
-Provide author/contact entry in a concise way.
+Use the exact heading from the canonical output contract.
+
+Provide author and feedback entries with the exact fixed labels from the canonical output contract.
 
 ### Forbidden Content
 
@@ -403,10 +506,12 @@ Do not include the following in plugin `README.md` files:
 - Note sections
 - FAQ sections
 - Extra headings outside the required structure
+- Non-canonical English section headings such as `Plugin Type`, `Configuration`, `Usage`, `Uninstall`, or `Contact`
+- Non-canonical English contact labels such as `Author:`
 
 ### Punctuation Rule
 
-Do not end prose lines or list items with the Chinese full stop `。`.
+Do not end prose lines or list items with CJK full stop punctuation.
 
 This rule does not apply to code blocks.
 

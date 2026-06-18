@@ -1,4 +1,6 @@
-﻿# Plugin Development Standards
+# Plugin Development Standards
+
+Use this guide for backend/frontend plugin development, plugin manifests, hooks, SQL scripts, and plugin README files. For public sharing, publishing, marketplace PRs, submodules, and update workflows, read `plugin-sharing.md`.
 
 ## Plugin Types
 
@@ -99,6 +101,8 @@ author = ''
 tags = ['']
 # Supported databases: mysql, postgresql
 database = ['']
+# Optional backend plugin startup dependencies
+# depends_on = ['dict']
 ```
 
 ### App-level Plugin Configuration
@@ -113,6 +117,7 @@ description = ''
 author = ''
 tags = ['']
 database = ['']
+# depends_on = ['dict']
 
 # Application configuration
 [app]
@@ -138,6 +143,7 @@ description = ''
 author = ''
 tags = ['']
 database = ['']
+# depends_on = ['dict']
 
 # Application configuration
 [app]
@@ -159,6 +165,35 @@ tags = ''
 [settings]
 XXX = 'value'
 ```
+
+## Manifest Validation and Runtime Behavior
+
+Backend plugin manifests are validated at startup and install time. Keep these rules aligned with `.schemas/plugin.schema.json` and `backend/plugin/validator.py`.
+
+- `plugin.version` must use `x.y.z` semver format, such as `1.0.0`.
+- `plugin.tags` must be one or more of `ai`, `mcp`, `agent`, `auth`, `storage`, `notification`, `task`, `payment`, `other`.
+- `plugin.database` must be one or more of `mysql`, `postgresql`.
+- `plugin.depends_on` is optional. Use plugin folder names, never include the plugin itself, and avoid cycles. fba sorts enabled plugins by dependencies before route and hook registration.
+- App-level plugins use `[app].router`; extend-level plugins use `[app].extend` plus at least one `[api.<filename>]` block.
+- `[api.<filename>]` keys must match plugin `api` Python file names without `.py`. Prefixes must start with `/` and contain only letters, digits, `_`, `-`, and `/`.
+- `[settings]` keys must be uppercase and values should be strings, numbers, or booleans.
+
+If a backend plugin has a `model/` directory, provide complete SQL scripts for at least one supported database:
+
+```text
+sql/<mysql|postgresql>/init.sql
+sql/<mysql|postgresql>/destroy.sql
+sql/<mysql|postgresql>/init_snowflake.sql
+sql/<mysql|postgresql>/destroy_snowflake.sql
+```
+
+Runtime behavior to account for:
+
+- A backend plugin directory is discovered only when it is under `backend/plugin` and contains `__init__.py`.
+- ZIP installation requires the archive to contain a top-level plugin directory with `plugin.toml` and `README.md`; the installer extracts the contents into `backend/plugin/<plugin_name>`.
+- Git installation accepts HTTP/HTTPS Git repository URLs and installs the repository folder name as the plugin name.
+- When `.env.example` exists, its content is appended to the project's backend `.env` during installation.
+- `requirements.txt` is installed with `uv pip install`; keep dependencies minimal and pinned when compatibility matters.
 
 ## Global Configuration
 
@@ -237,23 +272,25 @@ Development recommendation:
 
 ## Hook Functions
 
-Since fba v1.13.3, plugins support hook functions for more flexible configuration and reduced manual adaptation.
+Plugins may define optional hook functions in root-level `hooks.py`. Hooks run only for enabled plugins, and fba loads hook modules after resolving `plugin.depends_on`.
 
-Hook functions must be defined in `hooks.py` at the plugin root.
-
-fba also provides helper functions in `backend/plugin/patching.py` for plugin configuration.
+fba also provides helper functions in `backend/plugin/patching.py` for plugin configuration. Use helpers such as `replace_middleware` from `setup` when a plugin must adapt application middleware.
 
 ### lifespan
 
-Defines a FastAPI lifespan function. It is automatically registered before application startup.
+Define a FastAPI lifespan function. fba registers it in the plugin lifespan stage before application startup.
 
 ### setup
 
-Defines startup logic. Both synchronous and asynchronous setup functions are supported. The function is automatically executed before application startup.
+Define startup logic as `setup(app: FastAPI)`. Sync and async setup functions are supported and run before application startup.
+
+### otel
+
+Define OpenTelemetry setup as `otel(app: FastAPI)`. Sync and async functions are supported and run during plugin OpenTelemetry initialization.
 
 ## Frontend Plugin Directory Structure
 
-Frontend plugins are placed under `apps/web-antd/src/plugins`.
+Frontend plugins are placed under `apps/web-antdv-next/src/plugins`.
 
 ```text
 xxx                             # Plugin name
@@ -294,6 +331,15 @@ author = ''
 # Supported tags: ai, mcp, agent, auth, storage, notification, task, payment, other
 tags = ['']
 ```
+
+## Plugin Sharing
+
+Read `plugin-sharing.md` before helping with any of these tasks:
+
+- Preparing a backend or frontend plugin repository for public sharing
+- Publishing a plugin to the fba plugin marketplace
+- Updating an existing marketplace plugin submodule
+- Checking repository naming, HTTPS submodule URLs, or PR readiness
 
 ## Plugin README Convention
 

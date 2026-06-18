@@ -1,14 +1,16 @@
 ---
 name: fba
-description: FastAPI Best Architecture (fba) project development guide. Provide complete architecture specifications, coding styles, and plugin development guidance.
+description: FastAPI Best Architecture (fba) project development guide. Use when working in fba projects to design or review API, Schema, Service, CRUD, Model, configuration, naming, coding style, plugin development, plugin README files, plugin sharing, plugin publishing, or plugin marketplace updates.
 metadata:
-  author: FastAPI practices team
-  version: 2026-04-19
+  author: FastAPI Practices Team
+  version: 2026-06-18
 ---
 
 # FastAPI Best Architecture
 
 Official documentation: https://fastapi-practices.github.io/fastapi_best_architecture_docs/
+
+Use this skill to follow fba architecture and plugin conventions. Read only the references needed for the task.
 
 ## Core Architecture
 
@@ -30,17 +32,27 @@ Project adopts **Three-tier architecture**:
 4. Write business logic (service)
 5. Write database operations (crud)
 
-## Detailed Guides
+## Reference Selection
 
-| Module       | Document                   |
-|--------------|----------------------------|
-| API          | references/api.md          |
-| Schema       | references/schema.md       |
-| Model        | references/model.md        |
-| Naming       | references/naming.md       |
-| Plugin       | references/plugin.md       |
-| Coding Style | references/coding-style.md |
-| Config       | references/config.md       |
+| Task | Read |
+|------|------|
+| API routes, dependencies, response patterns, auth, permissions | `references/api.md` |
+| Pydantic request/response DTOs | `references/schema.md` |
+| SQLAlchemy models and migrations | `references/model.md` |
+| CRUD, Service, API, Schema naming | `references/naming.md` |
+| Backend/frontend plugin development and plugin README files | `references/plugin.md` |
+| Plugin sharing, public repositories, marketplace PRs, submodules, updates | `references/plugin-sharing.md` |
+| Formatting, comments, docstrings, commit style | `references/coding-style.md` |
+| Global settings and configuration | `references/config.md` |
+
+## Plugin Work
+
+When creating, reviewing, or updating plugins:
+
+1. Read `references/plugin.md` for plugin type, structure, manifest, configuration, hooks, SQL, and README rules
+2. Read `references/plugin-sharing.md` when the task involves sharing, publishing, updating, marketplace PRs, plugin repositories, or Git submodules
+3. Prefer source-code behavior from `fastapi-best-architecture` when docs and implementation differ
+4. Do not perform git add, commit, push, or PR actions unless the user explicitly asks
 
 ## CLI
 

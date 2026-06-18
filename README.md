@@ -11,15 +11,16 @@ npx skills add fastapi-practices/skills
 
 ## Available Skills
 
-### fastapi-best-architecture
+### fba
 
-FastAPI Best Architecture (fba) project development guide. Provide complete architecture specifications, coding styles,
-and plugin development guidance.
+FastAPI Best Architecture (fba) project development guide. Provides architecture specifications, coding styles,
+plugin development guidance, and plugin sharing / marketplace publishing workflows.
 
 **Use Cases:**
 
 - Develop new features or modules in fba project
 - Create or modify plugins (App-level / Extend-level)
+- Share plugins through public repositories and publish/update marketplace submodules
 - Write API, Service, CRUD, Model, Schema layers
 - Database migration and model design
 - JWT authentication and RBAC permission configuration
@@ -33,12 +34,13 @@ and plugin development guidance.
 - `references/config.md` - Global configuration reference
 - `references/model.md` - Database models, field types, and migrations
 - `references/naming.md` - CRUD / Service / API / Schema naming conventions
-- `references/plugin.md` - Complete plugin development guide
+- `references/plugin.md` - Plugin development, manifest, hooks, SQL, and README conventions
+- `references/plugin-sharing.md` - Plugin repository sharing, marketplace publishing, and update workflow
 - `references/schema.md` - Pydantic Schema definition standards
 
-### fba
+### fastapi-best-architecture
 
-Another name for fastapi-best-architecture skills.
+Repository folder name for the `fba` skill.
 
 ## Related Projects
 

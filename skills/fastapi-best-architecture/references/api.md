@@ -36,6 +36,12 @@ All API route parameters should be uniformly named `router`. When importing, alw
 from backend.app.admin.api.v1.sys.user import router as user_router
 ```
 
+### API Documentation Rules
+
+- Add `summary` to every route.
+- Use `description` only when it adds meaningful API behavior details.
+- Keep route handlers thin: parse request data, declare dependencies, call Service, and return `response_base`.
+
 ### RESTful Route Conventions
 
 ```
@@ -90,7 +96,7 @@ async with async_db_session.begin() as db:
 **No data response**
 
 ```python
-@router.create('/users')
+@router.post('/users')
 async def create_user(db: CurrentSessionTransaction, obj: CreateApiParam) -> ResponseModel:
     await user_service.create(db=db, obj=obj)
     return response_base.success()
@@ -130,6 +136,25 @@ class SchemaBase(BaseModel):
 ```
 
 After configuration, response data will be automatically converted.
+
+## Pagination
+
+Normal paginated list routes should depend on `DependsPagination` and return `ResponseSchemaModel[PageData[XxxDetail]]`.
+
+```python
+@router.get(
+    '',
+    summary='Get users paginated',
+    dependencies=[DependsPagination],
+)
+async def get_users_paginated(db: CurrentSession) -> ResponseSchemaModel[PageData[GetUserDetail]]:
+    page_data = await user_service.get_list(db=db)
+    return response_base.success(data=page_data)
+```
+
+In the Service layer, build or fetch a SQLAlchemy `Select` from CRUD and pass it to `paging_data(db, select)`.
+
+Cursor pagination uses `DependsCursorPagination` and `CursorPageData[XxxDetail]` for infinite-scroll or conversation-like lists.
 
 ## JWT Authentication
 

@@ -14,7 +14,7 @@ npx skills add fastapi-practices/skills
 ### fba
 
 FastAPI Best Architecture (fba) project development guide. Provides architecture specifications, coding styles,
-plugin development guidance, and plugin sharing / marketplace publishing workflows.
+plugin development guidance, runtime feature patterns, and plugin sharing / marketplace publishing workflows.
 
 **Use Cases:**
 
@@ -24,12 +24,14 @@ plugin development guidance, and plugin sharing / marketplace publishing workflo
 - Write API, Service, CRUD, Model, Schema layers
 - Database migration and model design
 - JWT authentication and RBAC permission configuration
+- Pagination, cache, Celery, i18n, configuration, and code-generation review
 - Code review and code style checking
 
 **Included References:**
 
 - `SKILL.md` - Main entry point with architecture overview, quick reference
 - `references/api.md` - Router organization, response patterns, authentication and permissions
+- `references/development.md` - Cross-layer feature workflow, Service/CRUD placement, pagination, cache, Celery, i18n, and code generation
 - `references/coding-style.md` - Coding style, documentation, and comment standards
 - `references/config.md` - Global configuration reference
 - `references/model.md` - Database models, field types, and migrations

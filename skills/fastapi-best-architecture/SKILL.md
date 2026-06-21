@@ -1,20 +1,17 @@
 ---
 name: fba
-description: FastAPI Best Architecture (fba) project development guide. Use when working in fba projects to design or review API, Schema, Service, CRUD, Model, configuration, naming, coding style, plugin development, plugin README files, plugin sharing, plugin publishing, or plugin marketplace updates.
-metadata:
-  author: FastAPI Practices Team
-  version: 2026-06-18
+description: FastAPI Best Architecture (fba) project development guide. Use when working in fba projects to design, implement, review, or document APIs, Schema, Service, CRUD, Model, configuration, response contracts, pagination, cache, Celery, i18n, coding style, plugin development, plugin README files, plugin sharing, plugin publishing, or plugin marketplace updates.
 ---
 
 # FastAPI Best Architecture
 
 Official documentation: https://fastapi-practices.github.io/fastapi_best_architecture_docs/
 
-Use this skill to follow fba architecture and plugin conventions. Read only the references needed for the task.
+Use this skill to follow fba architecture and plugin conventions. Read only the references needed for the task. For cross-layer feature work, read `references/development.md` first, then load the layer-specific references.
 
 ## Core Architecture
 
-Project adopts **Three-tier architecture**:
+Project adopts a layered backend architecture centered on API, Service, and CRUD, with Schema and Model as explicit data contracts:
 
 | Layer   | Responsibility                                                     |
 |---------|--------------------------------------------------------------------|
@@ -36,6 +33,7 @@ Project adopts **Three-tier architecture**:
 
 | Task | Read |
 |------|------|
+| Feature/module development flow, Service/CRUD placement, pagination, cache, Celery, i18n, code generation | `references/development.md` |
 | API routes, dependencies, response patterns, auth, permissions | `references/api.md` |
 | Pydantic request/response DTOs | `references/schema.md` |
 | SQLAlchemy models and migrations | `references/model.md` |

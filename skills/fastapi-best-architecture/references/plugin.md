@@ -90,20 +90,22 @@ Every plugin must contain `plugin.toml`.
 # Icon path inside the plugin repository or an icon URL
 icon = 'assets/icon.svg'
 # Short summary
-summary = ''
+summary = 'Short summary'
 # Version
-version = ''
+version = '0.0.1'
 # Description
-description = ''
+description = 'Detailed description'
 # Author
-author = ''
+author = 'Author'
 # Supported tags: ai, mcp, agent, auth, storage, notification, task, payment, other
-tags = ['']
+tags = ['other']
 # Supported databases: mysql, postgresql
-database = ['']
+database = ['postgresql']
 # Optional backend plugin startup dependencies
 # depends_on = ['dict']
 ```
+
+Use real, non-empty metadata before validation. `summary`, `description`, `author`, `tags`, and `database` are required for backend plugins, and `version` must be semver (`x.y.z`).
 
 ### App-level Plugin Configuration
 
@@ -111,12 +113,12 @@ database = ['']
 # Plugin metadata
 [plugin]
 icon = 'assets/icon.svg'
-summary = ''
-version = ''
-description = ''
-author = ''
-tags = ['']
-database = ['']
+summary = 'Short summary'
+version = '0.0.1'
+description = 'Detailed description'
+author = 'Author'
+tags = ['other']
+database = ['postgresql']
 # depends_on = ['dict']
 
 # Application configuration
@@ -137,12 +139,12 @@ XXX = 'value'
 # Plugin metadata
 [plugin]
 icon = 'assets/icon.svg'
-summary = ''
-version = ''
-description = ''
-author = ''
-tags = ['']
-database = ['']
+summary = 'Short summary'
+version = '0.0.1'
+description = 'Detailed description'
+author = 'Author'
+tags = ['other']
+database = ['postgresql']
 # depends_on = ['dict']
 
 # Application configuration
@@ -178,7 +180,7 @@ Backend plugin manifests are validated at startup and install time. Keep these r
 - `[api.<filename>]` keys must match plugin `api` Python file names without `.py`. Prefixes must start with `/` and contain only letters, digits, `_`, `-`, and `/`.
 - `[settings]` keys must be uppercase and values should be strings, numbers, or booleans.
 
-If a backend plugin has a `model/` directory, provide complete SQL scripts for at least one supported database:
+If a backend plugin has a `model/` directory, provide complete SQL scripts for at least one supported database. Keep `[plugin].database` aligned with the database directories that are actually complete:
 
 ```text
 sql/<mysql|postgresql>/init.sql
@@ -193,7 +195,7 @@ Runtime behavior to account for:
 - ZIP installation requires the archive to contain a top-level plugin directory with `plugin.toml` and `README.md`; the installer extracts the contents into `backend/plugin/<plugin_name>`.
 - Git installation accepts HTTP/HTTPS Git repository URLs and installs the repository folder name as the plugin name.
 - When `.env.example` exists, its content is appended to the project's backend `.env` during installation.
-- `requirements.txt` is installed with `uv pip install`; keep dependencies minimal and pinned when compatibility matters.
+- `requirements.txt` is installed with `uv pip install -r ... --prerelease=allow`; keep dependencies minimal and pinned when compatibility matters.
 
 ## Global Configuration
 
@@ -235,8 +237,8 @@ If the plugin requires environment variables, add `.env.example` in the plugin r
 
 ```dotenv
 # [ Plugin ] email
-EMAIL_USERNAME: str
-EMAIL_PASSWORD: str
+EMAIL_USERNAME=''
+EMAIL_PASSWORD=''
 ```
 
 ### Plugin Basic Configuration
@@ -254,14 +256,14 @@ EMAIL_CAPTCHA_REDIS_PREFIX = 'fba:email:captcha'
 EMAIL_CAPTCHA_EXPIRE_SECONDS = 180
 ```
 
-After `.env.example` and `[settings]` are configured, plugins installed through CLI or Git can adapt to hot-pluggable behavior without extra manual changes, provided the plugin has no additional integration requirements.
+After `.env.example` and `[settings]` are configured, plugins installed through CLI or Git can adapt to hot-pluggable behavior without extra manual changes, provided the plugin has no additional integration requirements. Users still need to replace placeholder values appended from `.env.example`.
 
 ### Global Configuration Priority
 
 Configuration priority flows in this order:
 
 ```text
-System environment variables -> .env -> conf.py -> plugin [settings]
+System environment variables -> .env -> plugin [settings] -> conf.py defaults
 ```
 
 Development recommendation:
@@ -321,15 +323,15 @@ Every frontend plugin must contain `plugin.toml`.
 # Icon path inside the plugin repository or an icon URL
 icon = 'assets/icon.svg'
 # Short summary
-summary = ''
+summary = 'Short summary'
 # Version
-version = ''
+version = '0.0.1'
 # Description
-description = ''
+description = 'Detailed description'
 # Author
-author = ''
+author = 'Author'
 # Supported tags: ai, mcp, agent, auth, storage, notification, task, payment, other
-tags = ['']
+tags = ['other']
 ```
 
 ## Plugin Sharing

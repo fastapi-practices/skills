@@ -13,8 +13,7 @@ from backend.common.model import Base, id_key
 class MyModel(Base):
     """模型表"""
 
-    __tablename__ = 'my_model' 
-
+    __tablename__ = 'my_model'
 
     id: Mapped[id_key] = mapped_column(init=False)
     name: Mapped[str] = mapped_column(comment='名称')
@@ -24,6 +23,8 @@ class MyModel(Base):
 ## Field Types
 
 ```python
+from datetime import datetime
+
 import sqlalchemy as sa
 from backend.common.model import TimeZone, UniversalText
 ```
@@ -102,6 +103,8 @@ fba alembic downgrade -1
 ## Complete Example
 
 ```python
+from datetime import datetime
+
 import sqlalchemy as sa
 
 from sqlalchemy.orm import Mapped, mapped_column

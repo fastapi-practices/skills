@@ -51,6 +51,7 @@ from datetime import datetime
 
 from pydantic import Field
 
+from backend.common.enums import StatusType
 from backend.common.schema import SchemaBase
 
 
@@ -66,8 +67,12 @@ class CreateArticleParam(ArticleSchemaBase):
     """创建文章参数"""
 
 
-class UpdateArticleParam(ArticleSchemaBase):
+class UpdateArticleParam(SchemaBase):
     """更新文章参数"""
+
+    title: str | None = Field(None, description='标题')
+    content: str | None = Field(None, description='内容')
+    status: StatusType | None = Field(None, description='状态')
 
 
 class DeleteArticleParam(SchemaBase):
@@ -92,4 +97,4 @@ class GetArticleWithAuthorDetail(GetArticleDetail):
 
 ## Camel Case Response
 
-See [the api reference guide](references/api.md) for details.
+See `references/api.md` for details.

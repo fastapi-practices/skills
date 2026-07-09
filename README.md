@@ -19,7 +19,7 @@ plugin development guidance, runtime feature patterns, and plugin sharing / mark
 **Use Cases:**
 
 - Develop new features or modules in fba project
-- Create or modify plugins (App-level / Extend-level)
+- Create or modify plugins (App-level / Extend-level / Capability-level)
 - Share plugins through public repositories and publish/update marketplace submodules
 - Write API, Service, CRUD, Model, Schema layers
 - Database migration and model design

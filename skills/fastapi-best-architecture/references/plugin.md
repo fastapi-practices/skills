@@ -26,9 +26,24 @@ Extend-level plugins must copy the target application's `api` directory structur
 extend = 'admin'
 ```
 
+### Capability-level Plugin
+
+A capability-level plugin does not inject routes. It provides importable capabilities for other plugins or application code, such as utilities, SDK wrappers, providers, adapters, or reusable capability packages.
+
+Capability-level plugins omit both `[app]` and `[api]`.
+
+```toml
+[plugin]
+summary = 'AI tools'
+version = '1.0.0'
+description = 'Reusable AI capabilities'
+author = 'Author'
+tags = ['ai']
+```
+
 ## Plugin Route Injection
 
-If a plugin satisfies the plugin development requirements, all routes in the plugin are automatically injected into the FastAPI application.
+If an app-level or extend-level plugin satisfies the plugin development requirements, its routes are automatically injected into the FastAPI application.
 
 Startup time can increase as the number of plugins grows because fba parses all plugins in real time before each startup.
 
@@ -40,11 +55,15 @@ Develop routes according to the standard fba route structure.
 
 Replicate the existing application's `api` directory structure 1:1. For example, the built-in `notice` plugin extends an existing application by mirroring its API layout.
 
+### Capability-level Routes
+
+Do not create route injection for capability-level plugins. Other code should import and use the plugin's modules directly.
+
 ## Database Compatibility
 
 Official fba implementations support both MySQL and PostgreSQL.
 
-Third-party plugins are not required to support both databases, but plugin authors should declare supported databases in `plugin.toml`.
+App-level and extend-level plugins must declare supported databases in `plugin.toml`. Capability-level plugins can omit `plugin.database` when they do not contain models or SQL.
 
 For cross-database SQLAlchemy compatibility, use SQLAlchemy 2.0 mechanisms such as `TypeDecorator` and `with_variant`.
 
@@ -54,7 +73,7 @@ Plugins are placed under `backend/plugin`.
 
 ```text
 xxx                             # Plugin name
-├── api                         # API routes
+├── api                         # API routes, required for app-level and extend-level plugins
 ├── crud                        # CRUD
 ├── model                       # Models
 │   ├── __init__.py             # Import all model classes here
@@ -99,8 +118,10 @@ description = 'Detailed description'
 author = 'Author'
 # Supported tags: ai, mcp, agent, auth, storage, notification, task, payment, other
 tags = ['other']
-# Supported databases: mysql, postgresql
-database = ['postgresql']
+# Supported databases: mysql, postgresql.
+# Required for app-level and extend-level plugins.
+# Optional for capability-level plugins without models.
+# database = ['postgresql']
 # Optional backend plugin startup dependencies
 # depends_on = ['dict']
 ```
@@ -168,19 +189,40 @@ tags = ''
 XXX = 'value'
 ```
 
+### Capability-level Plugin Configuration
+
+```toml
+# Plugin metadata
+[plugin]
+icon = 'assets/icon.svg'
+summary = ''
+version = ''
+description = ''
+author = ''
+tags = ['']
+# depends_on = ['dict']
+
+# Code-level configuration keys in uppercase.
+# Optional. See Hot-pluggable Configuration.
+[settings]
+XXX = 'value'
+```
+
 ## Manifest Validation and Runtime Behavior
 
 Backend plugin manifests are validated at startup and install time. Keep these rules aligned with `.schemas/plugin.schema.json` and `backend/plugin/validator.py`.
 
 - `plugin.version` must use `x.y.z` semver format, such as `1.0.0`.
 - `plugin.tags` must be one or more of `ai`, `mcp`, `agent`, `auth`, `storage`, `notification`, `task`, `payment`, `other`.
-- `plugin.database` must be one or more of `mysql`, `postgresql`.
-- `plugin.depends_on` is optional. Use plugin folder names, never include the plugin itself, and avoid cycles. fba sorts enabled plugins by dependencies before route and hook registration.
+- `plugin.database` must be one or more of `mysql`, `postgresql` when present.
+- App-level and extend-level plugins require `plugin.database`; capability-level plugins without models can omit it.
+- `plugin.depends_on` is optional. Use plugin folder names, never include the plugin itself, and avoid cycles.
 - App-level plugins use `[app].router`; extend-level plugins use `[app].extend` plus at least one `[api.<filename>]` block.
+- Capability-level plugins omit both `[app]` and `[api]`; they can still use `[settings]`.
 - `[api.<filename>]` keys must match plugin `api` Python file names without `.py`. Prefixes must start with `/` and contain only letters, digits, `_`, `-`, and `/`.
 - `[settings]` keys must be uppercase and values should be strings, numbers, or booleans.
 
-If a backend plugin has a `model/` directory, provide complete SQL scripts for at least one supported database. Keep `[plugin].database` aligned with the database directories that are actually complete:
+If a backend plugin has a `model/` directory, declare `plugin.database` and provide complete SQL scripts for at least one supported database. Keep `[plugin].database` aligned with the database directories that are actually complete:
 
 ```text
 sql/<mysql|postgresql>/init.sql
@@ -192,6 +234,7 @@ sql/<mysql|postgresql>/destroy_snowflake.sql
 Runtime behavior to account for:
 
 - A backend plugin directory is discovered only when it is under `backend/plugin` and contains `__init__.py`.
+- Capability-level plugins are cached and listed like other backend plugins, but they are not included in route injection.
 - ZIP installation requires the archive to contain a top-level plugin directory with `plugin.toml` and `README.md`; the installer extracts the contents into `backend/plugin/<plugin_name>`.
 - Git installation accepts HTTP/HTTPS Git repository URLs and installs the repository folder name as the plugin name.
 - When `.env.example` exists, its content is appended to the project's backend `.env` during installation.
@@ -274,7 +317,7 @@ Development recommendation:
 
 ## Hook Functions
 
-Plugins may define optional hook functions in root-level `hooks.py`. Hooks run only for enabled plugins, and fba loads hook modules after resolving `plugin.depends_on`.
+Plugins may define optional hook functions in root-level `hooks.py`. Hooks run only for enabled route-injectable plugins, and fba loads hook modules after resolving `plugin.depends_on`.
 
 fba also provides helper functions in `backend/plugin/patching.py` for plugin configuration. Use helpers such as `replace_middleware` from `setup` when a plugin must adapt application middleware.
 
@@ -374,7 +417,7 @@ The generated plugin `README.md` must use this exact localized structure and fix
 
 ## 插件类型
 
-- <应用级插件 or 扩展级插件>
+- <应用级插件 or 扩展级插件 or 能力型插件>
 
 ## 配置说明
 
@@ -461,6 +504,8 @@ Only describe the plugin type.
 Use a short bullet list with the exact canonical plugin type wording.
 
 For extend-level plugins, include the target app name such as `admin` when useful.
+
+For capability-level plugins, use `能力型插件`.
 
 Do not include route prefixes, API mount paths, or endpoint information.
 

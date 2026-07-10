@@ -400,9 +400,10 @@ A plugin `README.md` must contain only the following content, in this order:
 2. Description
 3. Plugin type
 4. Configuration
-5. Usage
-6. Uninstall
-7. Contact
+5. Configuration item descriptions when `[settings]` is present
+6. Usage
+7. Uninstall
+8. Contact
 
 Use the exact section headings and fixed labels from the canonical output contract below.
 
@@ -452,6 +453,10 @@ The generated plugin `README.md` must use this exact localized structure and fix
 ```python
 <existing plugin field definitions>
 ```
+
+## 配置项说明
+
+- `<PLUGIN_SETTING>`：<用途说明>
 
 ## 使用方式
 
@@ -558,6 +563,26 @@ Use direct instruction wording.
 Avoid conditional phrasing such as `if needed`, `when enabled`, or localized equivalents in the configuration section.
 
 For `plugin.toml`, use the canonical lead-in that says the plugin directory `plugin.toml` contains the following `[settings]` content rather than instructing the reader to add that content.
+
+#### Configuration Item Descriptions
+
+Include the exact `## 配置项说明` heading when the plugin's `plugin.toml` contains a non-empty `[settings]` table.
+
+List every `[settings]` key exactly once and in the same order as `plugin.toml`.
+
+Use this exact list-item format:
+
+```md
+- `<SETTING_NAME>`：<concise purpose>
+```
+
+Describe only what the setting controls or affects.
+
+Do not repeat its type, default value, configuration source, or setup instructions.
+
+Do not include environment-only variables or unrelated `backend/core/conf.py` fields in this section.
+
+Omit the entire section when `[settings]` is absent or empty.
 
 #### Usage
 

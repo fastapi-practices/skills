@@ -28,6 +28,7 @@ For hot-pluggable plugins:
 
 - Put required environment variable placeholders in the plugin root `.env.example` as dotenv assignments.
 - Put non-secret defaults in the plugin `plugin.toml` `[settings]` table with uppercase keys.
+- Document the purpose of every `[settings]` key in the plugin `README.md` under `## 配置项说明`.
 - Document the corresponding `backend/core/conf.py` type declarations in the plugin `README.md`.
 - During development, adding typed fields to `backend/core/conf.py` is recommended for IDE hints; published plugins cannot modify the user's file directly.
 

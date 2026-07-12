@@ -4,7 +4,22 @@ Configuration file location: `backend/core/conf.py`.
 
 Configurations marked as environment variables in the docs should be supplied through the system environment or `backend/.env`.
 
-## Source Priority
+## Configuration Model
+
+fba has two configuration stages:
+
+1. Static configuration is resolved when the global `Settings` instance is created.
+2. Dynamic configuration is loaded on demand during business execution and overrides selected fields on the existing `settings` singleton.
+
+The final effective priority is:
+
+```text
+Dynamic configuration -> system environment variables -> .env -> plugin [settings] -> conf.py defaults
+```
+
+Dynamic configuration is a runtime override layer, not a Pydantic Settings source.
+
+## Static Source Priority
 
 `Settings.settings_customise_sources()` resolves configuration in this order:
 
@@ -13,6 +28,14 @@ System environment variables -> .env -> plugin [settings] -> conf.py defaults
 ```
 
 Earlier sources override later sources. Plugin `[settings]` values are fallback defaults for hot-pluggable plugins, not a higher-priority override of `.env`.
+
+## Source Responsibilities
+
+- System environment variables: container, CI/CD, and production deployment injection; use for secrets, connection data, and deployment differences.
+- `.env`: local or single-host environment configuration; do not commit real secrets.
+- Plugin `[settings]`: non-secret, public, hot-pluggable plugin defaults.
+- `conf.py`: typed field declarations, validation, and built-in defaults; treat it as the global configuration contract.
+- Dynamic configuration: business settings that must be adjusted at runtime through parameter management.
 
 ## General Rules
 
@@ -38,3 +61,5 @@ For hot-pluggable plugins:
 - Environment file: `backend/.env`
 - Environment template: `backend/.env.example`
 - Plugin settings source: `backend/plugin/settings_source.py`
+- Dynamic configuration loader: `backend/utils/dynamic_config.py`
+- Dynamic configuration storage and management: `backend/plugin/config`

@@ -303,11 +303,17 @@ After `.env.example` and `[settings]` are configured, plugins installed through 
 
 ### Global Configuration Priority
 
-Configuration priority flows in this order:
+The final effective configuration priority flows in this order:
 
 ```text
-System environment variables -> .env -> plugin [settings] -> conf.py defaults
+Dynamic configuration -> system environment variables -> .env -> plugin [settings] -> conf.py defaults
 ```
+
+`Settings.settings_customise_sources()` resolves only the static chain from system environment variables through `conf.py` defaults. Dynamic configuration is an on-demand runtime override layer and is not a Pydantic Settings source.
+
+Only integrate a plugin with dynamic configuration when its business settings must be changed through parameter management while the system is running. The loader must use an explicit field-to-converter mapping and run before the corresponding settings are read.
+
+See `references/config.md` for the complete source responsibilities and dynamic configuration loading rules.
 
 Development recommendation:
 

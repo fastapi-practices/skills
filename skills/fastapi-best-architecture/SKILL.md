@@ -37,7 +37,7 @@ Project adopts a layered backend architecture centered on API, Service, and CRUD
 | API routes, dependencies, response patterns, auth, permissions | `references/api.md` |
 | Pydantic request/response DTOs | `references/schema.md` |
 | SQLAlchemy models and migrations | `references/model.md` |
-| CRUD, Service, API, Schema naming | `references/naming.md` |
+| CRUD, Service, API, Schema, entity and table prefix naming | `references/naming.md` |
 | Backend/frontend plugin development and plugin README files | `references/plugin.md` |
 | Plugin sharing, public repositories, marketplace PRs, submodules, updates | `references/plugin-sharing.md` |
 | Formatting, comments, docstrings, commit style | `references/coding-style.md` |

@@ -35,7 +35,7 @@ plugin development guidance, runtime feature patterns, and plugin sharing / mark
 - `references/coding-style.md` - Coding style, documentation, and comment standards
 - `references/config.md` - Global configuration reference
 - `references/model.md` - Database models, field types, and migrations
-- `references/naming.md` - CRUD / Service / API / Schema naming conventions
+- `references/naming.md` - CRUD / Service / API / Schema naming, entity stems, and table prefixes
 - `references/plugin.md` - Plugin development, manifest, hooks, SQL, and README conventions
 - `references/plugin-sharing.md` - Plugin repository sharing, marketplace publishing, and update workflow
 - `references/schema.md` - Pydantic Schema definition standards

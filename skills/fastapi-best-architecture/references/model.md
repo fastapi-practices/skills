@@ -20,6 +20,12 @@ class MyModel(Base):
     status: Mapped[int] = mapped_column(default=1, comment='状态')
 ```
 
+## Table Naming
+
+Set `__tablename__` explicitly. Use the namespace prefix and entity stem from `naming.md`.
+
+Do not derive the table name from the plugin directory.
+
 ## Field Types
 
 ```python

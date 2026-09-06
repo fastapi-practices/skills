@@ -24,7 +24,7 @@ class MyModel(Base):
 
 Set `__tablename__` explicitly. Use the namespace prefix and entity stem from `naming.md`.
 
-Do not derive the table name from the plugin directory.
+For an app-level plugin, the table prefix is the plugin directory plus `_`, then the filename entity. Do not omit that prefix, and do not splice extra path segments beyond the plugin directory.
 
 ## Field Types
 

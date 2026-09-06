@@ -11,7 +11,9 @@ All lowercase, separated by underscores.
 
 All PascalCase.
 
-The class stem `Xxx` comes from the **filename entity**, not from the plugin or app directory path.
+The class stem `Xxx` comes from the **filename entity**.
+
+When a namespace prefix is required, put it in front of that stem. Do not splice extra path segments such as `backend`, `plugin`, `app`, `model`, or nested folders inside the plugin.
 
 ```python
 class UserService:
@@ -25,8 +27,6 @@ class CRUDUser:
 class User:
     ...
 ```
-
-Do not concatenate the file hierarchy into a class name. If the model file is `template.py`, the class is based on `Template`, not on the parent directories.
 
 ## Entity Stem
 
@@ -44,22 +44,21 @@ Keep the same stem in Schema, CRUD, Service, API functions, and the table name. 
 
 ## Namespace Prefix
 
-Use a **short domain prefix** for ownership and collision avoidance. Do not dump the plugin folder name into every class and table.
-
-Plugin identity belongs in the plugin directory, frontend route, and menu name. It does not belong in every class or table.
+The namespace prefix identifies **which plugin or app owns the type**. It is not optional for app-level plugins.
 
 | Kind | Table prefix | Class prefix | Notes |
 |------|--------------|--------------|--------|
 | Core `admin` app | `sys_` | none | `User` / `sys_user` |
 | Extend-level into `admin` | `sys_` | usually none | `DictData` / `sys_dict_data`, `Notice` / `sys_notice` |
-| App-level plugin | short domain | matching PascalCase | choose a short token, not the full directory name |
-| Related plugins in one domain | share the domain prefix | share the domain prefix | do not give each related plugin its own folder-derived prefix |
+| App-level plugin | `{plugin_dir}_` | PascalCase of `{plugin_dir}` | file `item.py` in plugin `order_center` → `OrderCenterItem` / `order_center_item` |
+| Related plugins in one domain | share the primary plugin prefix | share the primary plugin prefix | do not invent a second prefix from the related plugin's own folder |
 
 Rules:
 
 - Extend-level plugins that inject into `admin` should use `sys_` on tables. The plugin folder does not need to start with `sys_`.
-- App-level plugins choose a short domain prefix, not the full directory name. Prefer a short token that will not collide with other modules.
-- Related plugins in the same domain share that short prefix.
+- App-level plugins use the plugin directory itself as the prefix. Convert it to PascalCase for classes and keep the snake_case directory plus `_` for tables. Do not strip it down to a generic token that no longer identifies the plugin.
+- If the directory name is long, a unique abbreviation that still names the plugin is allowed. A leftover generic token is not.
+- Related plugins in the same domain share the **primary** plugin prefix, including when one plugin extends another.
 - Do not invent a third prefix set in the same plugin. New code must follow the existing stem and prefix of that plugin.
 - Do not rename existing tables only because the plugin folder was renamed.
 

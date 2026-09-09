@@ -84,9 +84,8 @@ class UserService:
   - If a method uses instance state, define it as an instance method with `self`.
 - **Avoid misleading definitions**: Every method inside a class must explicitly use `self`, `cls`, or `@staticmethod`. Do not omit them.
 - **Private function extraction rules**:
-  - Extract a private function only when it creates a clear responsibility boundary, provides real reusable value, or significantly improves readability and maintainability.
   - Do not add private functions mechanically just because a function feels long.
-  - Do not wrap logic in a helper if it is called only once and does not create a clearer boundary.
+  - Do not wrap logic in a helper if it is called only once.
   - Avoid helpers that merely rename short code blocks, forward parameters, or hide obvious control flow.
 - **Avoid abstraction as decoration**: Eliminate over-encapsulation, unnecessary helper layers, and utility dumping.
 

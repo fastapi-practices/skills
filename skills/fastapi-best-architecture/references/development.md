@@ -12,6 +12,14 @@ Use this guide before implementing or reviewing cross-layer fba features.
 
 Keep API, Service, and CRUD I/O async. Use keyword-only service arguments for clarity.
 
+## Module Boundaries and SDK Integration
+
+- Place shared request/response DTOs in `schema/`. Schema modules must not import Service, CRUD, Agent runtime, or execution-lifecycle implementations to obtain their data contracts.
+- Keep business validation and orchestration in Service or the existing domain runtime that owns the workflow. Keep database access in CRUD. Put pure conversion helpers in `utils/` only when they have a clear shared purpose; do not move business workflows there to shorten another file.
+- Group modules by cohesive responsibility. A protocol or SDK package is reasonable when it owns an actual integration boundary; do not collect DTOs, business rules, persistence, and runtime lifecycle code under one protocol name merely because they use the same dependency. Avoid one-helper files and extra package levels without a distinct responsibility.
+- Prefer the SDK's native contracts, converters, and lifecycle hooks. Retain the adapters needed for application semantics or metadata; avoid duplicating SDK behavior. Directory flattening and adapter line counts are not goals in themselves.
+- When restructuring, inspect import direction and callers first, preserve public behavior and required SDK interfaces, then update production imports, test imports, string-based mocks, and documentation together. Remove the old package when no compatibility contract requires it; do not leave forwarding modules solely to avoid updating local callers.
+
 ## Implementation Flow
 
 1. Define or update the database model and migration.

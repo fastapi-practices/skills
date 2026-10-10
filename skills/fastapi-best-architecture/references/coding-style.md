@@ -15,7 +15,7 @@ Fully comply with `PEP 8` and follow the requirements below.
 
 ## Typing
 
-- All function parameters and return values must be typed.
+- All function parameters and return values must be typed, except the conventional `self` and `cls` receiver parameters.
 - Use `Annotated` when framework metadata is needed.
 - Use `|` for union types.
 
@@ -78,22 +78,29 @@ class UserService:
 
 - **Prefer module-level functions**: Logic that does not belong to any class should be defined as module-level functions rather than inside a class.
 - **Choose method type based on actual binding semantics** (not habit):
-  - If a method calls another method in the same class, define it as an instance method and call it through `self`.
-  - If a method does not call sibling methods and does not depend on instance state, keep it as `@staticmethod`.
-  - If a method uses class-level behavior or class state, define it as `@classmethod`.
-  - If a method uses instance state, define it as an instance method with `self`.
+  - Preserve binding and signatures required by an inherited SDK method, framework hook, or protocol.
+  - If a method uses instance state or calls sibling instance methods, define it as an instance method and call those methods through `self`.
+  - If a method needs class-level behavior or class state, define it as `@classmethod` and use `cls`; calling sibling class methods does not require conversion to an instance method.
+  - Otherwise, if a method calls sibling service methods as part of the same workflow, use an instance method with `self` rather than hard-coding the class name.
+  - If a method belongs to the class but does not call sibling methods or depend on instance/class state, keep it as `@staticmethod`.
 - **Avoid misleading definitions**: Every method inside a class must explicitly use `self`, `cls`, or `@staticmethod`. Do not omit them.
-- **Private function extraction rules**:
-  - Do not add private functions mechanically just because a function feels long.
-  - Do not wrap logic in a helper if it is called only once.
-  - Avoid helpers that merely rename short code blocks, forward parameters, or hide obvious control flow.
 - **Avoid abstraction as decoration**: Eliminate over-encapsulation, unnecessary helper layers, and utility dumping.
+
+### Private Helpers and Test Boundaries
+
+- Do not extract a function solely because of line count, phase count, lint complexity, or a desire to test or mock an internal step separately.
+- Inline a helper with one production caller when it only renames a sequential block, forwards parameters, or hides obvious control flow without an independent responsibility. Test callers do not count as production reuse; framework registration and indirect calls do count.
+- Keep functions with real responsibilities or required boundaries: SDK overrides, registered callbacks, async task entry points, resource/cancellation/transaction boundaries, and independently meaningful domain operations. A single direct caller does not make these functions redundant.
+- Do not add production helpers, wrapper classes, public exports, or dependency parameters only for tests. Test observable behavior through existing service, API, or runtime entry points and replace external dependencies at their existing boundaries. An existing function with a real responsibility may still have focused unit tests.
+- A leading underscore expresses an internal interface. Do not remove it merely to make tests or style checks easier, and do not add it to shared interfaces used by other production modules. When removing a redundant helper, move its logic back into its owner and update affected tests.
+- Prefer module-level functions when no captured state is needed. Keep nested functions when closures, decorators, or callback registration require their local context; do not move them mechanically.
 
 ## Documentation and Comments
 
 ### Comments
 
 - Use Chinese comments in project code.
+- Do not end Chinese comments or docstring prose with `。` or `.`.
 - Only add comments when they provide real value.
 - Do not add comments that merely restate the code.
 
@@ -245,10 +252,7 @@ class UserService:
 
 ### Recommended Density
 
-- Single linear short function: `0` blank lines
-- Typical function: `1` to `3` blank lines
-- Complex function: avoid more than `4` blank lines
-- If a function needs `5+` internal phase splits, reconsider its responsibility and split the function instead
+Use the number of phases as a prompt to review responsibility, not as a quota. Do not add/remove blank lines or extract helpers to meet a numeric target. A cohesive workflow may remain in one function; split only when the function-definition rules above justify a separate responsibility or execution boundary.
 
 ## Code Formatting
 
@@ -267,12 +271,22 @@ Built-in CLI:
 fba format
 ```
 
-Generic commands:
+For the requested scope, use scoped commands and inspect automatic fixes:
 
 ```bash
-ruff format
+ruff check --fix <paths>
+ruff format <paths>
+ruff check --no-fix <paths>
+ruff format --check <paths>
 ```
 
-```bash
-ruff check --fix --unsafe-fixes
-```
+Do not enable unsafe fixes by default or weaken lint configuration to hide findings.
+
+## Completion Review
+
+Before reporting Python work complete, review the changed code; for a comprehensive style audit, cover every maintained module in the requested scope:
+
+- Check function typing, method binding, service keyword-only arguments, absolute imports, naming, docstrings, Chinese punctuation, and logical phase spacing.
+- Trace production callers of extracted/private helpers, including callbacks and framework registrations. Check that tests did not dictate artificial production interfaces.
+- Check module ownership and import direction using `development.md` when the task changes structure or crosses layers. After moves, update callers, string-based patch targets, and relevant documentation; remove obsolete modules unless an actual compatibility requirement needs them.
+- Run scoped Ruff checks and relevant existing behavioral tests. Add tests when behavior or risk warrants them, not merely to mirror function layout or assert formatting. Report the scope checked and any unresolved limitation; do not equate lint success with complete architectural compliance.

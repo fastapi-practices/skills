@@ -7,7 +7,17 @@ description: FastAPI Best Architecture (fba) project development guide. Use when
 
 Official documentation: https://fastapi-practices.github.io/fastapi_best_architecture_docs/
 
-Use this skill to follow fba architecture and plugin conventions. Read only the references needed for the task. For cross-layer feature work, read `references/development.md` first, then load the layer-specific references.
+Use this skill to follow fba architecture and plugin conventions. Load the required baseline below, then only the additional references needed for the task.
+
+## Required Coding Baseline
+
+For every backend Python implementation, fix, refactor, or code review, read `references/coding-style.md` and `references/naming.md` before working on code. These rules apply to ordinary development as well as explicit style requests; the user does not need to repeat them. Apply them to maintained application and plugin code, including runtime modules, utilities, and relevant tests, while preserving framework-required contracts.
+
+For cross-layer features, directory changes, or SDK integrations, also read `references/development.md` before choosing module boundaries, then load the layer-specific references.
+
+Keep the requested scope: a comprehensive plugin review covers all maintained modules in that plugin and affected tests, not only API/Service/CRUD files. An ordinary feature or fix does not authorize unrelated repository-wide cleanup. For documentation-only work, load the relevant documentation reference without the Python baseline.
+
+Before completion, apply the review checks in `references/coding-style.md`. Ruff passing alone does not verify function design, test-driven helper extraction, or layer boundaries.
 
 ## Core Architecture
 
@@ -40,7 +50,7 @@ Project adopts a layered backend architecture centered on API, Service, and CRUD
 | CRUD, Service, API, Schema, entity and table prefix naming | `references/naming.md` |
 | Backend/frontend plugin development and plugin README files | `references/plugin.md` |
 | Plugin sharing, public repositories, marketplace PRs, submodules, updates | `references/plugin-sharing.md` |
-| Formatting, comments, docstrings, commit style | `references/coding-style.md` |
+| Every backend Python implementation/review: functions, private helpers, test boundaries, typing, formatting, comments, docstrings | `references/coding-style.md` (required baseline) |
 | Global settings and configuration | `references/config.md` |
 
 ## Plugin Work

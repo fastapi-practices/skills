@@ -18,6 +18,9 @@ Fully comply with `PEP 8` and follow the requirements below.
 - All function parameters and return values must be typed, except the conventional `self` and `cls` receiver parameters.
 - Use `Annotated` when framework metadata is needed.
 - Use `|` for union types.
+- Declare query, header, and cookie parameters with dedicated Pydantic models by default, such as `XxxQueryParam`, `XxxHeaderParam`, and `XxxCookieParam`.
+- Bind parameter models with `Annotated[XxxQueryParam, Query()]`, `Annotated[XxxHeaderParam, Header()]`, or `Annotated[XxxCookieParam, Cookie()]` rather than repeating inline parameter declarations.
+- Multiple parameter models can be combined in the same operation, together with individual parameters and dependencies. Request parameters remain at the top level; do not expect nested objects in the query string or headers.
 
 ```python
 from typing import Annotated
@@ -28,7 +31,7 @@ from fastapi import Path, Query
 async def get_user(
     db: CurrentSession,
     pk: Annotated[int, Path(description='用户 ID')],
-    username: Annotated[str | None, Query(description='用户名')] = None,
+    query: Annotated[UserQueryParam, Query()],
 ) -> ResponseSchemaModel[GetUserDetail]:
     ...
 ```

@@ -40,7 +40,11 @@ Keep API, Service, and CRUD I/O async. Use keyword-only service arguments for cl
 
 - Mutations that do not return data should use `ResponseModel` and `response_base.success()`.
 - Detail or typed query responses should use `ResponseSchemaModel[GetXxxDetail]`.
+- Define query, header, and cookie parameters as request models in `schema/`, then bind them with `Annotated[XxxParam, Query()]`, `Annotated[XxxParam, Header()]`, or `Annotated[XxxParam, Cookie()]`.
+- Multiple parameter models can be combined in the same operation. Each model applies its own defaults and validators while all request parameters stay at the top level.
+- Unpack parameter model fields explicitly in the API layer when calling the Service. Do not pass request DTOs through the API/Service boundary only to avoid unpacking, and do not change Service signatures solely to accept a parameter model.
 - Normal pagination uses `DependsPagination`, `PageData[XxxDetail]`, and `paging_data(db, select)` in the Service layer.
+- Put business filters in a Query model, but do not include `page` or `size`; the pagination dependency owns those parameters.
 - Cursor pagination uses `DependsCursorPagination` and `CursorPageData[XxxDetail]` for infinite-scroll or conversation-like lists.
 - Use `response_base.fast_success()` only for large JSON payloads where skipping Pydantic validation is intentional.
 

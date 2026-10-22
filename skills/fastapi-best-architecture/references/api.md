@@ -54,6 +54,30 @@ DELETE /api/v1/resources/{pk}    # Delete
 DELETE /api/v1/resources         # Batch delete
 ```
 
+## Request Parameter Models
+
+- Define query, header, and cookie parameters in the Schema layer with names that describe their binding location, such as `UserQueryParam`, `RequestContextHeaderParam`, and `PreferenceCookieParam`.
+- Bind each model with `Annotated[XxxParam, Query()]`, `Annotated[XxxParam, Header()]`, or `Annotated[XxxParam, Cookie()]`.
+- Multiple parameter models can be declared in one operation, together with individual parameters and dependencies. Parameters remain at the top level, for example `?username=alice&status=1`, not `?query={"username":"alice"}`.
+- Each model independently applies its defaults, field validators, and model validators. If models share a name or alias, declare the same type and constraints so OpenAPI remains consistent.
+- Keep route handlers thin: explicitly unpack model fields when calling the Service instead of passing the request model through the API/Service boundary.
+
+```python
+@router.get('/users')
+async def get_users(
+    db: CurrentSession,
+    query: Annotated[UserQueryParam, Query()],
+    sorting: Annotated[UserSortQueryParam, Query()],
+) -> ResponseSchemaModel[list[GetUserDetail]]:
+    data = await user_service.get_list(
+        db=db,
+        username=query.username,
+        status=query.status,
+        sort=sorting.field,
+    )
+    return response_base.success(data=data)
+```
+
 ## Database Transaction
 
 ### CurrentSession (Read-only Session)
@@ -147,10 +171,21 @@ Normal paginated list routes should depend on `DependsPagination` and return `Re
     summary='Get users paginated',
     dependencies=[DependsPagination],
 )
-async def get_users_paginated(db: CurrentSession) -> ResponseSchemaModel[PageData[GetUserDetail]]:
-    page_data = await user_service.get_list(db=db)
+async def get_users_paginated(
+    db: CurrentSession,
+    query: Annotated[UserQueryParam, Query()],
+) -> ResponseSchemaModel[PageData[GetUserDetail]]:
+    page_data = await user_service.get_list(
+        db=db,
+        dept=query.dept,
+        username=query.username,
+        phone=query.phone,
+        status=query.status,
+    )
     return response_base.success(data=page_data)
 ```
+
+Put business filters in the Query model and explicitly unpack them in the API layer. `page` and `size` are provided by `DependsPagination`; do not duplicate them in the business Query model.
 
 In the Service layer, build or fetch a SQLAlchemy `Select` from CRUD and pass it to `paging_data(db, select)`.
 

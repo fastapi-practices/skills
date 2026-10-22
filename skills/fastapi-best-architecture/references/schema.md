@@ -44,6 +44,35 @@ class UpdateUserParam(SchemaBase):
     status: int | None = Field(None, description='状态')
 ```
 
+## Parameter Models
+
+Query, header, and cookie parameters belong to the request DTOs in the Schema layer. Use names that identify both the resource and binding location:
+
+- `UserQueryParam` for query filters
+- `RequestContextHeaderParam` for headers
+- `PreferenceCookieParam` for cookies
+
+Optional filter fields should default to `None`, required fields should not set `= ...`, and every field should keep a `Field(description=...)`.
+
+```python
+class UserQueryParam(SchemaBase):
+    """用户查询参数"""
+
+    dept: int | None = Field(None, description='部门 ID')
+    username: str | None = Field(None, description='用户名')
+    phone: str | None = Field(None, description='手机号')
+    status: int | None = Field(None, description='状态')
+
+
+class UserSortQueryParam(SchemaBase):
+    """用户排序查询参数"""
+
+    field: str = Field(default='id', description='排序字段')
+    order: str = Field(default='desc', description='排序方向')
+```
+
+Multiple parameter models can be combined in one route and are each extracted and validated independently. Their fields remain top-level request parameters; the model names do not become nested query keys. A parameter declared in another model or dependency is not treated as an extra field when a model uses `extra='forbid'`.
+
 ## Complete Example
 
 ```python

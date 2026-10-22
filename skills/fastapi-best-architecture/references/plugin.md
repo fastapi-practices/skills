@@ -51,6 +51,8 @@ Startup time can increase as the number of plugins grows because fba parses all 
 
 Develop routes according to the standard fba route structure.
 
+App-level and extend-level plugin routes must follow the same request parameter model convention as application routes. Define query, header, and cookie models in the plugin `schema/` and bind them with `Annotated[XxxParam, Query()]`, `Annotated[XxxParam, Header()]`, or `Annotated[XxxParam, Cookie()]`. Apply this to single-parameter endpoints as well as list and pagination endpoints. Multiple models can be combined in one operation, and each model is validated independently while its fields remain top-level request parameters. Unpack fields explicitly in API handlers before calling the plugin Service.
+
 ### Extend-level Routes
 
 Replicate the existing application's `api` directory structure 1:1. For example, the built-in `notice` plugin extends an existing application by mirroring its API layout.

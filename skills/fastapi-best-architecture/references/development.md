@@ -16,6 +16,9 @@ Keep API, Service, and CRUD I/O async. Use keyword-only service arguments for cl
 
 - Place shared request/response DTOs in `schema/`. Schema modules must not import Service, CRUD, Agent runtime, or execution-lifecycle implementations to obtain their data contracts.
 - Keep business validation and orchestration in Service or the existing domain runtime that owns the workflow. Keep database access in CRUD. Put pure conversion helpers in `utils/` only when they have a clear shared purpose; do not move business workflows there to shorten another file.
+- Foundation directories `backend/common/`, `backend/utils/`, and `backend/database/` must not import `backend.app` or `backend.middleware`; the `ruff.toml` in each directory enforces this with `banned-api`. When a foundation module needs a business capability, define a protocol and a registration function in the foundation module and register the implementation from `backend/core/registrar.py`. Example: `register_jwt_user_provider` in `backend/common/security/jwt.py` and `UserService.get_jwt_user`. Do not work around the rule with function-level imports.
+- Optional capabilities owned by plugins, such as `config` for dynamic configuration and `casbin_rbac`, stay documented extension points. Import them lazily after `check_plugin_installed`; `banned-api` does not cover `backend.plugin`.
+- Core code must not hard-code plugin paths, field names, or settings. Expose a registration entry in the core and let the plugin register from its `setup` hook, as in `redaction.register` in `plugin.md`.
 - Group modules by cohesive responsibility. A protocol or SDK package is reasonable when it owns an actual integration boundary; do not collect DTOs, business rules, persistence, and runtime lifecycle code under one protocol name merely because they use the same dependency. Avoid one-helper files and extra package levels without a distinct responsibility.
 - Prefer the SDK's native contracts, converters, and lifecycle hooks. Retain the adapters needed for application semantics or metadata; avoid duplicating SDK behavior. Directory flattening and adapter line counts are not goals in themselves.
 - When restructuring, inspect import direction and callers first, preserve public behavior and required SDK interfaces, then update production imports, test imports, string-based mocks, and documentation together. Remove the old package when no compatibility contract requires it; do not leave forwarding modules solely to avoid updating local callers.
@@ -65,7 +68,15 @@ Keep API, Service, and CRUD I/O async. Use keyword-only service arguments for cl
 
 - Language packs live in `backend/locale` and support JSON, YAML, and YML.
 - Use `t('response.success')` style chained keys.
-- fba reads `Accept-Language` from the request and falls back to the configured default language.
+- Exceptions raised in core code (`backend/app`, `backend/common`, `backend/utils`) use `msg=t('error.xxx')` instead of literal text. Add every key to both `zh-CN.yml` and `en-US.json`, grouped by domain such as `error.user.not_found`.
+- Pass variables as format placeholders, for example `t('error.auth.locked_retry', minutes=5)` with `{minutes}` in the language packs. Keep the same placeholders in every language pack.
+- Language packs are loaded only from `backend/locale`, so a published plugin cannot add keys. Plugin exception messages stay literal text unless the project's language packs are extended.
+- fba reads `Accept-Language` from the request, matches the primary language subtag (`zh-TW` uses `zh-CN`, `en-GB` uses `en-US`), and falls back to the configured default language when no language pack matches.
+
+## Request Exception State
+
+- Global exception handlers and the JWT authentication handler record the failure of the current request in `ctx.request_exception` as a `RequestException` with `kind`, `code`, and `msg`. `RequestExceptionKind` values double as the Prometheus `exception_type` label.
+- Custom middleware that needs the outcome of a request reads `ctx.request_exception` after `call_next`. It is `None` for successful requests. Do not depend on private `ctx` keys.
 
 ## Code Generation
 

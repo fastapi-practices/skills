@@ -337,6 +337,35 @@ Define a FastAPI lifespan function. fba registers it in the plugin lifespan stag
 
 Define startup logic as `setup(app: FastAPI)`. Sync and async setup functions are supported and run before application startup.
 
+Use `setup` to register plugin rules with extension points owned by the core. Do not edit core middleware or exception handlers to special-case plugin paths or fields.
+
+For example, a plugin that handles sensitive request content registers redaction rules with `backend.common.redaction.redaction`:
+
+```python
+from fastapi import FastAPI
+
+from backend.common.redaction import redaction
+
+
+def setup(app: FastAPI) -> None:
+    """
+    注册脱敏规则
+
+    :param app: FastAPI 应用
+    :return:
+    """
+    redaction.register(
+        body_paths=[r'/chat/completions/?$'],
+        query_paths=[r'/oauth/callback/?$'],
+        opaque_fields=['messages'],
+    )
+```
+
+- `body_paths`: regular expressions matched with `re.search` against the request path. A match replaces the request arguments recorded by the operation log with `[REDACTED]`.
+- `query_paths`: regular expressions matched the same way. A match hides the query string in the access log.
+- `opaque_fields`: field names, case-insensitive. When one appears in a validation error location or in an echoed input object, the whole echoed input is hidden.
+- `OPERA_LOG_REDACT_KEYS` stays the shared list of sensitive keys; validation error echoes and operation log arguments always mask those keys.
+
 ### otel
 
 Define OpenTelemetry setup as `otel(app: FastAPI)`. Sync and async functions are supported and run during plugin OpenTelemetry initialization.

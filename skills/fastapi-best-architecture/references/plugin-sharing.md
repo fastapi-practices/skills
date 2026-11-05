@@ -8,7 +8,6 @@ Use this guide when preparing an fba plugin for public sharing, publishing it to
 - Backend installer behavior: `fastapi-best-architecture/backend/plugin/installer.py`
 - Plugin manifest schema: `fastapi-best-architecture/.schemas/plugin.schema.json`
 - Marketplace repository: `https://github.com/fastapi-practices/plugins`
-- Marketplace submission form: `https://github.com/fastapi-practices/plugins/issues/new?template=plugin-submission.yml`
 - Backend plugin template: `https://github.com/fastapi-practices/fba_plugin_template`
 - Frontend plugin template: `https://github.com/fastapi-practices/fba-ui-plugin-template`
 - Optional release automation: `https://github.com/fastapi-practices/plugin-release`
@@ -112,23 +111,34 @@ Before sharing a frontend plugin repository, verify:
 
 ## Publish to Marketplace
 
-Publishing means opening a PR to the official fba plugin marketplace repository. The marketplace tracks plugins as Git submodules.
+Publishing means opening a PR to the official fba plugin marketplace repository. The marketplace tracks plugins as Git submodules. The contributor must create the PR from their own authenticated GitHub account so commits and the PR remain attributed to the plugin author.
 
-### Automated Submission
+### AI-Agent Flow
 
-Prefer the marketplace issue form for a new public plugin. It creates a review PR without requiring the contributor to fork or manually edit submodules.
+Use this flow when the user asks to publish a plugin with the `fba` skill.
 
-1. Confirm the plugin repository is public and passes the pre-share checklist.
-2. Open the plugin submission issue form and provide the HTTPS repository URL, backend or frontend type, contact, and description.
-3. The workflow verifies public visibility, naming, duplicate plugin names, repository layout, `plugin.toml`, and required model SQL files.
-4. On success, the workflow creates or updates `plugin-submission/<issue-number>` and opens a submodule PR.
-5. A maintainer reviews plugin behavior and dependency safety before merging.
+1. Confirm the public plugin repository, plugin type, plugin name, and marketplace submodule path.
+2. Check the authenticated GitHub identity and local Git author identity. Stop instead of substituting a maintainer or bot identity.
+3. Clone the marketplace default branch and add the plugin as a temporary submodule.
+4. Run the marketplace checks without executing plugin code:
 
-The workflow must not execute install scripts, build scripts, or tests from the submitted repository. Marketplace maintainers configure `PLUGIN_SUBMISSION_TOKEN` so the generated PR can trigger normal validation workflows.
+   ```bash
+   pnpm install --frozen-lockfile
+   pnpm validate <plugin-name>
+   pnpm validate:submission <plugin-name> <backend|frontend>
+   git diff --check
+   ```
 
-### Manual Submission
+5. Report the validation result, branch name, submodule URL, and pending Git/GitHub operations. Wait for explicit authorization.
+6. After authorization, fork the marketplace into the contributor's account, create a branch, add the submodule, commit, and push to that fork.
+7. Open the PR from the contributor's fork to the marketplace default branch. Prefer `gh pr create` with an explicit `<github-login>:<branch>` head.
+8. If `gh` is unavailable or unauthenticated, do not install it. Provide `https://github.com/fastapi-practices/plugins/fork` and the compare URL `https://github.com/fastapi-practices/plugins/compare/<default-branch>...<github-login>:<branch>?expand=1` so the contributor can create the PR in the browser.
 
-Use this fallback when automation is unavailable or a maintainer needs to inspect and adjust the submodule manually.
+Use a concise PR description covering the plugin name, type, source repository, validation commands, and any known limitations. Maintainers review behavior and dependency safety before merging.
+
+### Browser Fallback
+
+Use the manual flow when the Agent cannot complete repository operations or the contributor prefers the GitHub UI.
 
 1. Fork the marketplace repository.
 
@@ -231,5 +241,8 @@ When helping users publish or update plugins:
 
 - Explain every git operation before running it.
 - Do not stage, commit, push, or open PRs unless the user explicitly requests that action.
+- Check that the authenticated GitHub account belongs to the contributor; never create a marketplace PR with a maintainer or bot identity.
+- Do not install `gh` when it is missing. Use the browser fallback instead.
 - Prefer preparing commands or checklists when the user asks for guidance only.
 - Confirm the target repository, branch, plugin name, and marketplace path before executing release actions.
+- Never execute install scripts, build scripts, or tests from the submitted plugin repository during marketplace validation.

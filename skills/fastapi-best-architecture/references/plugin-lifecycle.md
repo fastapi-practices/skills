@@ -148,23 +148,25 @@ Before creating or updating a public repository:
 
 Publishing requires a separate explicit authorization from the user. State the target repository, branch, plugin name, and marketplace path before writing.
 
-The preferred automated flow is:
+The preferred flow is:
 
 1. Create or update the public plugin repository from the appropriate template.
 2. Push the plugin contents to the repository root.
-3. Submit the repository URL through the marketplace plugin submission form when available.
-4. Let the marketplace automation validate the manifest and open a submodule PR.
-5. Review the generated PR and validation report.
+3. Run the `plugin-sharing.md` self-check against the marketplace validation commands.
+4. Report the result and wait for explicit authorization.
+5. From the contributor's authenticated GitHub account, fork the marketplace, push a branch, and open the submodule PR.
+6. Review the PR validation report and fix any failures.
 
-When automation is unavailable, use the manual submodule workflow in `plugin-sharing.md`.
+When `gh` is unavailable or unauthenticated, use the browser fallback in `plugin-sharing.md` instead of installing tools.
 
 Publication safety:
 
-- Never force-push a contributor branch unless it is a bot-owned submission branch.
+- Never create the marketplace PR with a maintainer or bot identity. The contributor's account must own the PR.
+- Never force-push a contributor branch without explicit authorization.
 - Never publish a private repository.
 - Never reuse an existing plugin name.
 - Never bypass failed validation by disabling workflows or branch protection.
-- Never execute install scripts, build scripts, or test code from the submitted repository in the marketplace automation job.
+- Never execute install scripts, build scripts, or test code from the submitted repository during marketplace validation.
 
 ## Update
 

@@ -63,6 +63,7 @@ When creating, reviewing, or updating plugins:
 3. Read `references/plugin-sharing.md` when the task involves sharing, publishing, updating, marketplace PRs, plugin repositories, or Git submodules
 4. Prefer source-code behavior from `fastapi-best-architecture` when docs and implementation differ
 5. Do not perform git add, commit, push, repository creation, fork, submodule update, or PR actions unless the user explicitly asks
+6. Publish from the contributor's authenticated GitHub account; never create the marketplace PR as a maintainer or bot
 
 ## CLI
 

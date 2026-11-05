@@ -49,6 +49,7 @@ Project adopts a layered backend architecture centered on API, Service, and CRUD
 | SQLAlchemy models and migrations | `references/model.md` |
 | CRUD, Service, API, Schema, entity and table prefix naming | `references/naming.md` |
 | Backend/frontend plugin development and plugin README files | `references/plugin.md` |
+| Plugin conversion, creation, validation, packaging, submission, and release lifecycle | `references/plugin-lifecycle.md` |
 | Plugin sharing, public repositories, marketplace PRs, submodules, updates | `references/plugin-sharing.md` |
 | Every backend Python implementation/review: functions, private helpers, test boundaries, typing, formatting, comments, docstrings | `references/coding-style.md` (required baseline) |
 | Global settings and configuration | `references/config.md` |
@@ -57,10 +58,11 @@ Project adopts a layered backend architecture centered on API, Service, and CRUD
 
 When creating, reviewing, or updating plugins:
 
-1. Read `references/plugin.md` for plugin type, structure, manifest, configuration, hooks, SQL, and README rules
-2. Read `references/plugin-sharing.md` when the task involves sharing, publishing, updating, marketplace PRs, plugin repositories, or Git submodules
-3. Prefer source-code behavior from `fastapi-best-architecture` when docs and implementation differ
-4. Do not perform git add, commit, push, or PR actions unless the user explicitly asks
+1. Read `references/plugin-lifecycle.md` for end-to-end plugin conversion, creation, validation, packaging, and release coordination
+2. Read `references/plugin.md` for plugin type, structure, manifest, configuration, hooks, SQL, and README rules
+3. Read `references/plugin-sharing.md` when the task involves sharing, publishing, updating, marketplace PRs, plugin repositories, or Git submodules
+4. Prefer source-code behavior from `fastapi-best-architecture` when docs and implementation differ
+5. Do not perform git add, commit, push, repository creation, fork, submodule update, or PR actions unless the user explicitly asks
 
 ## CLI
 

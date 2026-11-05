@@ -8,8 +8,9 @@ Use this guide when preparing an fba plugin for public sharing, publishing it to
 - Backend installer behavior: `fastapi-best-architecture/backend/plugin/installer.py`
 - Plugin manifest schema: `fastapi-best-architecture/.schemas/plugin.schema.json`
 - Marketplace repository: `https://github.com/fastapi-practices/plugins`
+- Marketplace submission form: `https://github.com/fastapi-practices/plugins/issues/new?template=plugin-submission.yml`
 - Backend plugin template: `https://github.com/fastapi-practices/fba_plugin_template`
-- Frontend plugin template: `https://github.com/fastapi-practices/fba_ui_plugin_template`
+- Frontend plugin template: `https://github.com/fastapi-practices/fba-ui-plugin-template`
 - Optional release automation: `https://github.com/fastapi-practices/plugin-release`
 
 ## Naming Rules
@@ -27,14 +28,15 @@ Backend plugin names are unique across installed plugins. If a marketplace plugi
 
 ### Frontend Plugin Repository
 
-Use the plugin name plus `_ui` as the GitHub repository name.
+Use the plugin name plus `_ui` or `-ui` as the GitHub repository name.
 
 ```text
-plugin name == repository name without _ui
+plugin name == repository name without _ui or -ui
 ai == ai_ui
+ai-chat == ai-chat-ui
 ```
 
-The `_ui` suffix separates frontend plugin repositories from backend plugin repositories. During frontend Git installation, fba removes `_ui` and installs the plugin into `apps/web-antdv-next/src/plugins/<plugin_name>`.
+The suffix separates frontend plugin repositories from backend plugin repositories. During frontend Git installation, fba removes `_ui` or `-ui` and installs the plugin into `apps/web-antdv-next/src/plugins/<plugin_name>`.
 
 ## Repository Layout
 
@@ -68,7 +70,7 @@ Incorrect:
 
 ### Frontend Repository Root
 
-Copy all files inside `apps/web-antdv-next/src/plugins/<plugin_name>` into the repository root. Keep `_ui` only in the GitHub repository name, not in the installed plugin folder name.
+Copy all files inside `apps/web-antdv-next/src/plugins/<plugin_name>` into the repository root. Keep `_ui` or `-ui` only in the GitHub repository name, not in the installed plugin folder name.
 
 ```text
 <repo-root>/
@@ -102,7 +104,7 @@ Before sharing a backend plugin repository, verify:
 Before sharing a frontend plugin repository, verify:
 
 - Repository is public if it will be listed in the official marketplace.
-- Repository name ends with `_ui`.
+- Repository name ends with `_ui` or `-ui`.
 - Repository root contains `plugin.toml`.
 - Repository root contains only the plugin contents, not an extra outer folder.
 - The plugin is compatible with `apps/web-antdv-next/src/plugins`.
@@ -111,6 +113,22 @@ Before sharing a frontend plugin repository, verify:
 ## Publish to Marketplace
 
 Publishing means opening a PR to the official fba plugin marketplace repository. The marketplace tracks plugins as Git submodules.
+
+### Automated Submission
+
+Prefer the marketplace issue form for a new public plugin. It creates a review PR without requiring the contributor to fork or manually edit submodules.
+
+1. Confirm the plugin repository is public and passes the pre-share checklist.
+2. Open the plugin submission issue form and provide the HTTPS repository URL, backend or frontend type, contact, and description.
+3. The workflow verifies public visibility, naming, duplicate plugin names, repository layout, `plugin.toml`, and required model SQL files.
+4. On success, the workflow creates or updates `plugin-submission/<issue-number>` and opens a submodule PR.
+5. A maintainer reviews plugin behavior and dependency safety before merging.
+
+The workflow must not execute install scripts, build scripts, or tests from the submitted repository. Marketplace maintainers configure `PLUGIN_SUBMISSION_TOKEN` so the generated PR can trigger normal validation workflows.
+
+### Manual Submission
+
+Use this fallback when automation is unavailable or a maintainer needs to inspect and adjust the submodule manually.
 
 1. Fork the marketplace repository.
 
@@ -160,7 +178,7 @@ Publishing means opening a PR to the official fba plugin marketplace repository.
 - Do not use SSH URLs such as `git@github.com:owner/repo.git`.
 - Keep the submodule path aligned with the plugin repository name.
 - For backend plugins, use `plugins/<plugin-name>`.
-- For frontend plugins, keep the `_ui` suffix in the repository and marketplace submodule path when publishing the frontend repository.
+- For frontend plugins, keep the `_ui` or `-ui` suffix in the repository and marketplace submodule path when publishing the frontend repository.
 - Do not vendor plugin source code directly into the marketplace repository.
 
 ## Update an Existing Marketplace Plugin
